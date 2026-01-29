@@ -2,6 +2,12 @@
 # Phase 2: Set up your Python & ML environment 
 # Phase 3: Build a Machine Learning Model
 # Phase 4: Prepare for FPGA implementation
+# About Dataset reference (https://www.kaggle.com/datasets/adilshamim8/greenhouse-plant-growth-metrics)
+# The Advanced IoT Agriculture Dataset captures detailed physiological and morphological
+# measurements of plants grown under two greenhouse settings (IoT‑enabled vs. traditional)
+# at Tikrit University’s Agriculture Lab. Compiled by Mohammed Ismail Lifta (2023–2024)
+#  under the supervision of Prof. Wisam Dawood Abdullah, it comprises 30,000 records spanning 14 variables that quantify 
+# chlorophyll levels, growth rates, biomass (wet/dry weight), root metrics, and more, alongside a final categorical Class label.
 
 import os
 import pandas as pd
@@ -18,7 +24,7 @@ api.authenticate()
 # -------------------------
 # Step 2: Dataset folder
 # -------------------------
-download_path = os.path.join(os.path.dirname(__file__), "dataset")
+download_path = os.path.join(os.path.dirname(__file__), "datasets")
 os.makedirs(download_path, exist_ok=True)
 dataset_name = "adilshamim8/greenhouse-plant-growth-metrics"
 
@@ -53,41 +59,40 @@ with open(log_file, "w", encoding="utf-8") as log:
     log.write(tabulate(df.sample(5, random_state=42), headers='keys', tablefmt='fancy_grid', showindex=False))
     log.write("\n\n")
 
-
     # Column description table
     column_info = pd.DataFrame({
         "Column": ["Random", "ACHP", "PHR", "AWWGV", "ALAP", "ANPL", "ARD", "ADWR",
                    "PDMVG", "ARL", "AWWR", "ADWV", "PDMRG", "Class"],
         "Meaning": [
-            "Replicate ID / trial number",
-            "Average Canopy Height of Plant (cm)",
-            "Plant Height Range (?) or Plant Height Ratio",
-            "Average Wet Weight Growth Value (?)",
-            "Average Leaf Area per Plant (cm²)",
-            "Average Number of Leaves",
-            "Average Root Diameter (?)",
-            "Average Dry Weight Root (?)",
-            "Plant Dry Mass Variation Growth (?)",
-            "Average Root Length (cm)",
-            "Average Wet Weight Root (?)",
-            "Average Dry Weight Variation (?)",
-            "Plant Dry Mass Ratio Growth (?)",
-            "Target label / group (SA, etc.)"
+            "Identifier representing different plant sample batches (e.g., R1, R2, R3).",
+            "Average chlorophyll content per plant, an indicator of photosynthetic activity.",
+            "Plant height rate – measures the vertical growth over time.",
+            "Average wet weight of vegetative growth – total fresh weight of the above-ground parts.",
+            "Average leaf area per plant – surface area of leaves which impacts photosynthesis.",
+            "Average number of leaves per plant – indicates plant maturity and foliage density.",
+            "Average root diameter – thickness of roots, relevant to nutrient uptake.",
+            "Average dry weight of roots – total root biomass after drying.",
+            "Percentage of dry matter in vegetative growth – measures solid content in shoots.",
+            "Average root length – indicates root development and depth.",
+            "Average wet weight of roots – total fresh root weight.",
+            "Average dry weight of vegetative parts – dried mass of above-ground plant parts.",
+            "Percentage of dry matter in root growth – solid content of the root system.",
+            "Categorical label indicating the experimental group: SA, SB, SC (Traditional Greenhouse), TA, TB, TC (IoT-based Greenhouse)."
         ],
         "Notes on High/Low": [
             "Not numerical; just indicates which repeat the data came from (R1, R2, R3, etc.)",
-            "High → taller plants, Low → shorter plants",
-            "High → bigger variation in height or ratio, Low → smaller",
-            "High → heavier wet plants, Low → lighter",
-            "High → more leaf area, Low → less",
+            "High → more chlorophyll, Low → less",
+            "High → faster growth, Low → slower growth",
+            "High → heavier wet plant, Low → lighter",
+            "High → larger leaf area, Low → smaller",
             "High → more leaves, Low → fewer",
             "High → thicker roots, Low → thinner",
             "High → heavier roots, Low → lighter",
-            "High → higher variation in dry mass, Low → lower",
+            "High → higher dry matter %, Low → lower",
             "High → longer roots, Low → shorter",
             "High → heavier roots, Low → lighter",
-            "High → more variability, Low → less",
-            "High → higher ratio, Low → lower",
+            "High → heavier dry biomass, Low → lighter",
+            "High → higher dry matter %, Low → lower",
             "Categorical variable"
         ],
         "Typical Range": [
