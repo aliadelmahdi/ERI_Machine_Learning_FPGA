@@ -3,8 +3,6 @@
 # Phase 3: Build a Machine Learning Model
 # Phase 4: Prepare for FPGA implementation
 
-
-
 # About Dataset reference (https://www.kaggle.com/datasets/atharvasoundankar/smart-farming-sensor-data-for-yield-prediction)
 # This dataset simulates real-world smart farming operations powered by
 # IoT sensors and satellite data. It captures environmental and
