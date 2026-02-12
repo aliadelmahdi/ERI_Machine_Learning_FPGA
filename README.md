@@ -73,6 +73,8 @@ The dataset simulates real-world smart farming operations using IoT sensors and 
 
 ## Verification Strategy
 
+![Verification Strategy Image](https://github.com/user-attachments/assets/f903a030-1ab2-46d5-91e8-7e682af902c2)
+
 - Develop a **SystemVerilog UVM testbench** to verify functional correctness of the FPGA implementation.  
 - Apply **randomized and directed test vectors** covering possible input ranges.  
 - Verify that predicted yield values match software-based ML results within acceptable tolerance.  
