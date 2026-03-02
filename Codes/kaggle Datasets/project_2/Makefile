@@ -16,7 +16,9 @@ SCRIPT_ANALYSIS = dataset_analysis.py
 # New ML script (your smart farming model code)
 SCRIPT_ML = main.py
 SCRIPT_MODEL = model.py
+SCRIPT_GMODEL = golden_model.py
 SCRIPT_TEST = test.py
+SCRIPT_ENCODE = encode_crop_type.py
 
 # Default target: keep old behavior
 all: env run
@@ -39,9 +41,12 @@ run:
 	$(ENV_NAME)/Scripts/python $(SCRIPT_MODEL)
 run_model:
 	$(ENV_NAME)/Scripts/python $(SCRIPT_MODEL)
+run_gmodel:
+	$(ENV_NAME)/Scripts/python $(SCRIPT_GMODEL)
 run_test:
 	$(ENV_NAME)/Scripts/python $(SCRIPT_TEST)
-
+run_encode:
+	$(ENV_NAME)/Scripts/python $(SCRIPT_ENCODE)
 # Clean virtual environment and logs
 clean:
 	rm -rf $(ENV_NAME)

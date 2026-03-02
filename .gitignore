@@ -43,3 +43,14 @@
 ~$*.pptx
 ~$*.docx
 ~$*.xlsx
+
+/Codes/FPGA Flow/work/
+Codes/FPGA Flow/top.ucdb
+.gitignore
+Codes/FPGA Flow/transcript
+Codes/FPGA Flow/vish_stacktrace.vstf
+Codes/FPGA Flow/vsim.wlf
+Codes/FPGA Flow/.vscode/settings.json
+Codes/FPGA Flow/.vscode/tasks.json
+Codes/FPGA Flow/work/@_opt3/_lib1_0.qdb
+

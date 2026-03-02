@@ -14,18 +14,19 @@ from sklearn.preprocessing import StandardScaler
 # -------------------------
 # 1. Load and preprocess data
 # -------------------------
-df = pd.read_csv('datasets/Smart_Farming_Crop_Yield_2024.csv')
+df = pd.read_csv('datasets/farm_data_encoded.csv')
 
 # Feature engineering: growing days
-df['sowing_date']   = pd.to_datetime(df['sowing_date'], format='%Y-%m-%d')
-df['harvest_date']  = pd.to_datetime(df['harvest_date'], format='%Y-%m-%d')
-df['growing_days']  = (df['harvest_date'] - df['sowing_date']).dt.days
+df['sowing_date']  = pd.to_datetime(df['sowing_date'], format='%Y-%m-%d')
+df['harvest_date'] = pd.to_datetime(df['harvest_date'], format='%Y-%m-%d')
+df['growing_days'] = (df['harvest_date'] - df['sowing_date']).dt.days
 
 # Features
 features = [
     'soil_moisture_%', 'soil_pH', 'temperature_C', 'rainfall_mm',
-    'humidity_%', 'sunlight_hours', 'NDVI_index', 'growing_days'
+    'humidity_%', 'sunlight_hours', 'NDVI_index', 'growing_days', 'crop_type'
 ]
+
 X = df[features]
 y = df['yield_kg_per_hectare']
 
@@ -38,10 +39,33 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
+# Numeric features
+numeric_features = [
+    'soil_moisture_%', 'soil_pH', 'temperature_C', 'rainfall_mm',
+    'humidity_%', 'sunlight_hours', 'NDVI_index', 'growing_days'
+]
+
+# -------------------------
 # Feature scaling
+# -------------------------
 scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test  = scaler.transform(X_test)
+
+X_train_num = scaler.fit_transform(X_train[numeric_features])
+X_test_num  = scaler.transform(X_test[numeric_features])
+
+# Reattach crop_type as FIRST column (UNSCALED)
+X_train = np.column_stack([
+    X_train['crop_type'].values,
+    X_train_num
+])
+
+X_test = np.column_stack([
+    X_test['crop_type'].values,
+    X_test_num
+])
+
+# Final feature order
+features = ['crop_type'] + numeric_features
 
 # -------------------------
 # 2. Decision Tree Regressor
@@ -51,10 +75,10 @@ param_grid = {
     'max_depth': [None, 10, 20, 30, 50],
     'min_samples_split': [2, 5, 10, 20, 50],
     'min_samples_leaf': [1, 2, 5, 10, 20],
-    'max_features': [None, 'sqrt', 'log2'],  # try reducing features at each split
-    'splitter': ['best', 'random']           # allows stochastic splits
+    'max_features': [None, 'sqrt', 'log2'],  # None means use all features
+    'splitter': ['best', 'random']
 }
-
+# Decision Tree Test MSE: 1355421.62, R²: 0.019
 grid_dt = GridSearchCV(
     dt, param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=1
 )
@@ -112,7 +136,7 @@ plt.close()
 # -------------------------
 # 6. Export Decision Tree rules to a log file
 # -------------------------
-LOG_FILE = "decision_tree.log"
+LOG_FILE = "logs/decision_tree.log"
 with open(LOG_FILE, "w") as f:
     f.write("Decision Tree Rules:\n")
     f.write("="*60 + "\n\n")
@@ -120,17 +144,41 @@ with open(LOG_FILE, "w") as f:
     f.write("\n" + "="*60 + "\n")
 
 print(f"Decision Tree rules exported to {LOG_FILE}")
+# -------------------------
+# 6a. Compute mean and std for each feature and log it
+# -------------------------
+feature_stats = X.describe().loc[['mean', 'std']]  # compute mean & std
+
+with open(LOG_FILE, "a") as f:  # append to existing log
+    f.write("\nFeature Statistics (mean ± std):\n")
+    f.write("="*60 + "\n")
+    for feature in features:
+        mean_val = feature_stats.at['mean', feature]
+        std_val  = feature_stats.at['std', feature]
+        f.write(f"{feature:<20}: {mean_val:.3f} ± {std_val:.3f}\n")
+    f.write("="*60 + "\n")
+
+print(f"Feature statistics appended to {LOG_FILE}")
 
 # -------------------------
 # 7. Predict first 7 rows and log actual vs predicted
 # -------------------------
 first_rows = X.iloc[:7]  # original, unscaled first 7 rows
-first_rows_scaled = scaler.transform(first_rows)  # scale the features
 
+# Scale ONLY numeric features
+first_rows_num = scaler.transform(first_rows[numeric_features])
+
+# Reattach crop_type as FIRST column
+first_rows_scaled = np.column_stack([
+    first_rows['crop_type'].values,
+    first_rows_num
+])
+
+# Predict
 y_pred_first7 = best_dt.predict(first_rows_scaled)
 y_actual_first7 = y.iloc[:7].values
 
-LOG_FILE_FIRST7 = "first7_predictions.log"
+LOG_FILE_FIRST7 = "logs/first7_predictions.log"
 with open(LOG_FILE_FIRST7, "w") as f:
     f.write("Prediction for First 7 Rows\n")
     f.write("="*60 + "\n")
@@ -141,4 +189,3 @@ with open(LOG_FILE_FIRST7, "w") as f:
     f.write("="*60 + "\n")
 
 print(f"First 7 rows actual vs predicted values exported to {LOG_FILE_FIRST7}")
-
