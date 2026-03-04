@@ -1,2 +1,15 @@
-# scripts/run.tcl
-# invalid command name "scripts/run.tcl"
+# do {Codes/FPGA Flow/scripts/run.tcl}
+# ** Warning: (vlib-34) Library already exists at "work".
+# Errors: 0, Warnings: 1
+# QuestaSim-64 vlog 2021.1 Compiler 2021.01 Jan 19 2021
+# Start time: 17:26:12 on Mar 04,2026
+# vlog -f Codes/FPGA Flow/scripts/list.f -mfcu "+cover" -covercells 
+# ** Error: (vlog-7) Failed to open design unit file "interface/shared_pkg.sv" in read mode.
+# No such file or directory. (errno = ENOENT)
+# End time: 17:26:12 on Mar 04,2026, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 0
+# ** Error: C:/questasim64_2021.1/win64/vlog failed.
+# Error in macro ./Codes/FPGA Flow/scripts/run.tcl line 3
+# C:/questasim64_2021.1/win64/vlog failed.
+#     while executing
+# "vlog  -f "Codes/FPGA Flow/scripts/list.f" -mfcu +cover -covercells"

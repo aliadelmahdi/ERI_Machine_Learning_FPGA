@@ -251,3 +251,110 @@ module golden_model_v2 (
         end
     end
 endmodule
+
+module golden_model_v3 (
+    input  wire        clk,
+    input  wire        rst,
+
+    input  real soil_moisture,
+    input  real soil_ph,
+    input  real temperature,
+    input  real rainfall,
+    input  real humidity,
+    input  real sunlight_hours,
+    input  real NDVI_index,
+    input  real growing_days,
+
+    input  int crop_type,
+
+    output reg  [31:0] yield_int
+);
+
+    // ================= Decision tree thresholds (raw values from Python) =================
+    real HUM_THRESH1   = 76.42;
+    real SM_THRESH1    = 35.31;
+    real PH_THRESH1    = 6.13;
+    real GD_THRESH1    = 127.97;
+    real GD_THRESH2    = 125.53;
+    real TEMP_THRESH1  = 23.92;
+    real PH_THRESH2    = 7.15;
+    real SM_THRESH2    = 21.52;
+    real TEMP_THRESH2  = 26.21;
+    real NDVI_THRESH1  = 0.59;
+    real SUN_THRESH1   = 7.61;
+    real CROP_THRESH1  = 2.76;
+
+    // ================= Yield constants =================
+    real Y_4012 = 4012.16;
+    real Y_3824 = 3824.74;
+    real Y_4266 = 4266.83;
+    real Y_3802 = 3802.41;
+    real Y_4376 = 4376.08;
+    real Y_4476 = 4476.56;
+    real Y_4074 = 4074.15;
+    real Y_4004 = 4004.49;
+    real Y_3359 = 3359.99;
+    real Y_4160 = 4160.91;
+    real Y_3504 = 3504.10;
+    real Y_4718 = 4718.38;
+    real Y_4168 = 4168.09;
+
+    real yield_real;
+
+    // ================= FSM =================
+    parameter IDLE    = 2'b00;
+    parameter DECIDE  = 2'b01;
+    parameter CONVERT = 2'b10;
+    reg [1:0] state;
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            state      <= IDLE;
+            yield_int  <= 0;
+            yield_real <= 0.0;
+        end else begin
+            case (state)
+                IDLE: state <= DECIDE;
+
+                DECIDE: begin
+                    // ================= Decision tree =================
+                    if (humidity <= HUM_THRESH1) begin
+                        if (soil_moisture <= SM_THRESH1) begin
+                            if (soil_ph <= PH_THRESH1) begin
+                                if (growing_days <= GD_THRESH1) yield_real = Y_4012;
+                                else                            yield_real = Y_3824;
+                            end else begin
+                                if (growing_days <= GD_THRESH2) begin
+                                    if (temperature <= TEMP_THRESH1) yield_real = Y_4266;
+                                    else if (soil_ph <= PH_THRESH2)  yield_real = Y_3802;
+                                    else                             yield_real = Y_4376;
+                                end else begin
+                                    if (soil_moisture <= SM_THRESH2) yield_real = Y_4476;
+                                    else                             yield_real = Y_4074;
+                                end
+                            end
+                        end else begin
+                            if (temperature <= TEMP_THRESH2) yield_real = Y_4004;
+                            else                             yield_real = Y_3359;
+                        end
+                    end else begin
+                        if (NDVI_index <= NDVI_THRESH1) begin
+                            if (sunlight_hours <= SUN_THRESH1) yield_real = Y_4160;
+                            else                              yield_real = Y_3504;
+                        end else begin
+                            if (crop_type <= CROP_THRESH1) yield_real = Y_4718;
+                            else                           yield_real = Y_4168;
+                        end
+                    end
+
+                    state <= CONVERT;
+                end
+
+                CONVERT: begin
+                    yield_int <= $rtoi(yield_real);
+                    state     <= IDLE;
+                end
+            endcase
+        end
+    end
+endmodule

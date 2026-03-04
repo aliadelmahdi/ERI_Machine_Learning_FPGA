@@ -1,43 +1,48 @@
 Decision Tree Rules:
 ============================================================
 
-|--- growing_days <= -1.06
-|   |--- crop_type <= 3.91
-|   |   |--- value: [3877.71]
-|   |--- crop_type >  3.91
-|   |   |--- value: [3889.49]
-|--- growing_days >  -1.06
-|   |--- crop_type <= 3.81
-|   |   |--- soil_pH <= 1.24
-|   |   |   |--- NDVI_index <= 0.32
-|   |   |   |   |--- soil_pH <= -0.48
-|   |   |   |   |   |--- value: [4161.82]
-|   |   |   |   |--- soil_pH >  -0.48
-|   |   |   |   |   |--- value: [4142.28]
-|   |   |   |--- NDVI_index >  0.32
-|   |   |   |   |--- soil_moisture_% <= -0.08
-|   |   |   |   |   |--- value: [4136.84]
-|   |   |   |   |--- soil_moisture_% >  -0.08
-|   |   |   |   |   |--- value: [4010.21]
-|   |   |--- soil_pH >  1.24
-|   |   |   |--- value: [4399.57]
-|   |--- crop_type >  3.81
-|   |   |--- NDVI_index <= -1.25
-|   |   |   |--- value: [3646.80]
-|   |   |--- NDVI_index >  -1.25
-|   |   |   |--- sunlight_hours <= -0.08
-|   |   |   |   |--- value: [4001.40]
-|   |   |   |--- sunlight_hours >  -0.08
-|   |   |   |   |--- growing_days <= -0.10
-|   |   |   |   |   |--- value: [4203.40]
-|   |   |   |   |--- growing_days >  -0.10
-|   |   |   |   |   |--- value: [3804.23]
+|--- humidity_% <= 76.42
+|   |--- soil_moisture_% <= 35.31
+|   |   |--- soil_pH <= 6.13
+|   |   |   |--- growing_days <= 127.97
+|   |   |   |   |--- value: [4012.16]
+|   |   |   |--- growing_days >  127.97
+|   |   |   |   |--- value: [3824.74]
+|   |   |--- soil_pH >  6.13
+|   |   |   |--- growing_days <= 125.53
+|   |   |   |   |--- temperature_C <= 23.92
+|   |   |   |   |   |--- value: [4266.83]
+|   |   |   |   |--- temperature_C >  23.92
+|   |   |   |   |   |--- soil_pH <= 7.15
+|   |   |   |   |   |   |--- value: [3802.41]
+|   |   |   |   |   |--- soil_pH >  7.15
+|   |   |   |   |   |   |--- value: [4376.08]
+|   |   |   |--- growing_days >  125.53
+|   |   |   |   |--- soil_moisture_% <= 21.52
+|   |   |   |   |   |--- value: [4476.56]
+|   |   |   |   |--- soil_moisture_% >  21.52
+|   |   |   |   |   |--- value: [4074.15]
+|   |--- soil_moisture_% >  35.31
+|   |   |--- temperature_C <= 26.21
+|   |   |   |--- value: [4004.49]
+|   |   |--- temperature_C >  26.21
+|   |   |   |--- value: [3359.99]
+|--- humidity_% >  76.42
+|   |--- NDVI_index <= 0.59
+|   |   |--- sunlight_hours <= 7.61
+|   |   |   |--- value: [4160.91]
+|   |   |--- sunlight_hours >  7.61
+|   |   |   |--- value: [3504.10]
+|   |--- NDVI_index >  0.59
+|   |   |--- crop_type <= 2.76
+|   |   |   |--- value: [4718.38]
+|   |   |--- crop_type >  2.76
+|   |   |   |--- value: [4168.09]
 
 ============================================================
 
 Feature Statistics (mean ± std):
 ============================================================
-crop_type           : 2.958 ± 1.351
 soil_moisture_%     : 26.750 ± 10.150
 soil_pH             : 6.524 ± 0.586
 temperature_C       : 24.676 ± 5.349
@@ -46,4 +51,5 @@ humidity_%          : 65.194 ± 14.643
 sunlight_hours      : 7.030 ± 1.692
 NDVI_index          : 0.602 ± 0.175
 growing_days        : 119.496 ± 16.798
+crop_type           : 2.958 ± 1.351
 ============================================================

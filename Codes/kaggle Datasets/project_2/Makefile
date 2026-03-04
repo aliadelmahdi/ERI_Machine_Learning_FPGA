@@ -14,9 +14,9 @@ ENV_NAME = venv
 SCRIPT_ANALYSIS = dataset_analysis.py
 
 # New ML script (your smart farming model code)
-SCRIPT_ML = main.py
+SCRIPT_ML = main_noscale.py
 SCRIPT_MODEL = model.py
-SCRIPT_GMODEL = golden_model.py
+SCRIPT_GMODEL = golden_model_noscale.py
 SCRIPT_TEST = test.py
 SCRIPT_ENCODE = encode_crop_type.py
 
