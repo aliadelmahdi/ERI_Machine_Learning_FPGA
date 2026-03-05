@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Batch Script",
+      "type": "shell",
+      "command": "scripts/run.bat",
+      "problemMatcher": [],
+      "windows": {
+        "command": "scripts/run.bat"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"  // This makes sure the task runs from the root of the workspace
+      }
+    }
+  ]
+}

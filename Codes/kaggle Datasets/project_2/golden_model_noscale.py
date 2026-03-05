@@ -2,6 +2,8 @@ import pandas as pd
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
+import numpy as np
 
 # -------------------------
 # Step 1: Data cleaning + Golden Model prediction
@@ -177,3 +179,17 @@ plt.savefig(os.path.join(
 plt.close()
 
 print(f"Golden model visualizations saved in {OUTPUT_DIR}")
+
+# Actual and predicted values
+y_true = df_clean_with_predictions['yield_kg_per_hectare']
+y_pred = df_clean_with_predictions['predicted_yield_golden_model']
+
+# Define tolerance (e.g., within 10% of actual yield)
+tolerance = 0.25  # 10%
+
+# Boolean array: True if prediction is within tolerance
+correct_predictions = np.abs(y_true - y_pred) / y_true <= tolerance
+
+# Calculate “accuracy” as percentage
+accuracy_percent = 100 * correct_predictions.mean()
+print(f"Predictions within ±{tolerance*100:.0f}% of actual yield: {accuracy_percent:.2f}%")

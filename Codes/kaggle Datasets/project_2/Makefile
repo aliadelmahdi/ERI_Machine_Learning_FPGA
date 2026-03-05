@@ -14,10 +14,10 @@ ENV_NAME = venv
 SCRIPT_ANALYSIS = dataset_analysis.py
 
 # New ML script (your smart farming model code)
-SCRIPT_ML = main_noscale.py
+SCRIPT_ML = main_m4.py
 SCRIPT_MODEL = model.py
 SCRIPT_GMODEL = golden_model_noscale.py
-SCRIPT_TEST = test.py
+SCRIPT_TEST = run_generated_tree_from_file_m4.py
 SCRIPT_ENCODE = encode_crop_type.py
 
 # Default target: keep old behavior
@@ -28,7 +28,7 @@ all: env run
 env:
 	python -m venv $(ENV_NAME)
 	$(ENV_NAME)/Scripts/python -m pip install --upgrade pip
-	$(ENV_NAME)/Scripts/pip install pandas numpy matplotlib seaborn scikit-learn kaggle tabulate skl2onnx onnxruntime
+	$(ENV_NAME)/Scripts/pip install streamlit pandas numpy scikit-learn xgboost matplotlib seaborn plotly Pillow kaggle tabulate skl2onnx onnxruntime catboost lightgbm
 
 
 # Run the original dataset analysis (unchanged behavior)
@@ -38,7 +38,7 @@ run-data:
 # Run the smart farming ML code
 run:
 	$(ENV_NAME)/Scripts/python $(SCRIPT_ML)
-	$(ENV_NAME)/Scripts/python $(SCRIPT_MODEL)
+# 	$(ENV_NAME)/Scripts/python $(SCRIPT_MODEL)
 run_model:
 	$(ENV_NAME)/Scripts/python $(SCRIPT_MODEL)
 run_gmodel:

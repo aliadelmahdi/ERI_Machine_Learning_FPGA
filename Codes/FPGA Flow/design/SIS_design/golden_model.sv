@@ -1,360 +1,559 @@
-import shared_pkg::*;
+// import shared_pkg::*;
 
-module golden_model_v1 (
-    input  logic clk,
-    input  logic rst,
+// module golden_model_v1 (
+//     input  logic clk,
+//     input  logic rst,
 
-    // -------- Raw inputs --------
-    input  real soil_moisture,
-    input  real soil_ph,
-    input  real temperature,
-    input  real rainfall,
-    input  real humidity,
-    input  real sunlight_hours,
-    input  real NDVI_index,
-    input  real growing_days,
+//     // -------- Raw inputs --------
+//     input  real soil_moisture,
+//     input  real soil_ph,
+//     input  real temperature,
+//     input  real rainfall,
+//     input  real humidity,
+//     input  real sunlight_hours,
+//     input  real NDVI_index,
+//     input  real growing_days,
 
-    // RAW, UN-SCALED crop type
-    input  logic [31:0] crop_type,
+//     // RAW, UN-SCALED crop type
+//     input  logic [31:0] crop_type,
 
-    output real yield
-);
-    // ========================
-    // Internal scaled signals
-    // ========================
-    real sm, ph, temp, rain, hum, sun, ndvi, gd;
-    real yield_reg;
+//     output real yield
+// );
+//     // ========================
+//     // Internal scaled signals
+//     // ========================
+//     real sm, ph, temp, rain, hum, sun, ndvi, gd;
+//     real yield_reg;
 
-    // ========================
-    // Scaling parameters
-    // ========================
-    parameter real SOILMOISTURE_MEAN  = 26.750;
-    parameter real SOILMOISTURE_STD   = 10.150;
+//     // ========================
+//     // Scaling parameters
+//     // ========================
+//     parameter real SOILMOISTURE_MEAN  = 26.750;
+//     parameter real SOILMOISTURE_STD   = 10.150;
 
-    parameter real SOILPH_MEAN        = 6.524;
-    parameter real SOILPH_STD         = 0.586;
+//     parameter real SOILPH_MEAN        = 6.524;
+//     parameter real SOILPH_STD         = 0.586;
 
-    parameter real TEMPERATURE_MEAN   = 24.676;
-    parameter real TEMPERATURE_STD    = 5.349;
+//     parameter real TEMPERATURE_MEAN   = 24.676;
+//     parameter real TEMPERATURE_STD    = 5.349;
 
-    parameter real RAINFALL_MEAN      = 181.686;
-    parameter real RAINFALL_STD       = 72.293;
+//     parameter real RAINFALL_MEAN      = 181.686;
+//     parameter real RAINFALL_STD       = 72.293;
 
-    parameter real HUMIDITY_MEAN      = 65.194;
-    parameter real HUMIDITY_STD       = 14.643;
+//     parameter real HUMIDITY_MEAN      = 65.194;
+//     parameter real HUMIDITY_STD       = 14.643;
 
-    parameter real SUNLIGHT_MEAN      = 7.030;
-    parameter real SUNLIGHT_STD       = 1.692;
+//     parameter real SUNLIGHT_MEAN      = 7.030;
+//     parameter real SUNLIGHT_STD       = 1.692;
 
-    parameter real NDVI_MEAN          = 0.602;
-    parameter real NDVI_STD           = 0.175;
+//     parameter real NDVI_MEAN          = 0.602;
+//     parameter real NDVI_STD           = 0.175;
 
-    parameter real GROWINGDAYS_MEAN   = 119.496;
-    parameter real GROWINGDAYS_STD    = 16.798;
-    // ========================
-    // Feature scaling
-    // ========================
-    always_comb begin
-        sm   = (soil_moisture  - SOILMOISTURE_MEAN) / SOILMOISTURE_STD;
-        ph   = (soil_ph        - SOILPH_MEAN)       / SOILPH_STD;
-        temp = (temperature   - TEMPERATURE_MEAN)  / TEMPERATURE_STD;
-        rain = (rainfall      - RAINFALL_MEAN)     / RAINFALL_STD;
-        hum  = (humidity      - HUMIDITY_MEAN)     / HUMIDITY_STD;
-        sun  = (sunlight_hours- SUNLIGHT_MEAN)     / SUNLIGHT_STD;
-        ndvi = (NDVI_index    - NDVI_MEAN)         / NDVI_STD;
-        gd   = (growing_days  - GROWINGDAYS_MEAN)  / GROWINGDAYS_STD;
-    end
+//     parameter real GROWINGDAYS_MEAN   = 119.496;
+//     parameter real GROWINGDAYS_STD    = 16.798;
+//     // ========================
+//     // Feature scaling
+//     // ========================
+//     always_comb begin
+//         sm   = (soil_moisture  - SOILMOISTURE_MEAN) / SOILMOISTURE_STD;
+//         ph   = (soil_ph        - SOILPH_MEAN)       / SOILPH_STD;
+//         temp = (temperature   - TEMPERATURE_MEAN)  / TEMPERATURE_STD;
+//         rain = (rainfall      - RAINFALL_MEAN)     / RAINFALL_STD;
+//         hum  = (humidity      - HUMIDITY_MEAN)     / HUMIDITY_STD;
+//         sun  = (sunlight_hours- SUNLIGHT_MEAN)     / SUNLIGHT_STD;
+//         ndvi = (NDVI_index    - NDVI_MEAN)         / NDVI_STD;
+//         gd   = (growing_days  - GROWINGDAYS_MEAN)  / GROWINGDAYS_STD;
+//     end
   
-    // ========================
-    // Decision Tree (Updated)
-    // ========================
-    always_ff @(posedge clk or posedge rst) begin
-        if (rst) begin
-            yield_reg <= 0.0;
-        end else begin
+//     // ========================
+//     // Decision Tree (Updated)
+//     // ========================
+//     always_ff @(posedge clk or posedge rst) begin
+//         if (rst) begin
+//             yield_reg <= 0.0;
+//         end else begin
 
-            if (gd <= -1.06) begin
-                if (crop_type <= 3.91)
-                    yield_reg <= 3877.71;
-                else
-                    yield_reg <= 3889.49;
+//             if (gd <= -1.06) begin
+//                 if (crop_type <= 3.91)
+//                     yield_reg <= 3877.71;
+//                 else
+//                     yield_reg <= 3889.49;
 
-            end else begin  // gd > -1.06
+//             end else begin  // gd > -1.06
 
-                if (crop_type <= 3.81) begin
-                    if (ph <= 1.24) begin
-                        if (ndvi <= 0.32) begin
-                            if (ph <= -0.48)
-                                yield_reg <= 4161.82;
-                            else
-                                yield_reg <= 4142.28;
-                        end else begin
-                            if (sm <= -0.08)
-                                yield_reg <= 4136.84;
-                            else
-                                yield_reg <= 4010.21;
-                        end
-                    end else begin
-                        yield_reg <= 4399.57;
-                    end
+//                 if (crop_type <= 3.81) begin
+//                     if (ph <= 1.24) begin
+//                         if (ndvi <= 0.32) begin
+//                             if (ph <= -0.48)
+//                                 yield_reg <= 4161.82;
+//                             else
+//                                 yield_reg <= 4142.28;
+//                         end else begin
+//                             if (sm <= -0.08)
+//                                 yield_reg <= 4136.84;
+//                             else
+//                                 yield_reg <= 4010.21;
+//                         end
+//                     end else begin
+//                         yield_reg <= 4399.57;
+//                     end
 
-                end else begin  // crop_type > 3.81
-                    if (ndvi <= -1.25)
-                        yield_reg <= 3646.80;
-                    else begin
-                        if (sun <= -0.08)
-                            yield_reg <= 4001.40;
-                        else begin
-                            if (gd <= -0.10)
-                                yield_reg <= 4203.40;
-                            else
-                                yield_reg <= 3804.23;
-                        end
-                    end
-                end
-            end
-        end
-    end
+//                 end else begin  // crop_type > 3.81
+//                     if (ndvi <= -1.25)
+//                         yield_reg <= 3646.80;
+//                     else begin
+//                         if (sun <= -0.08)
+//                             yield_reg <= 4001.40;
+//                         else begin
+//                             if (gd <= -0.10)
+//                                 yield_reg <= 4203.40;
+//                             else
+//                                 yield_reg <= 3804.23;
+//                         end
+//                     end
+//                 end
+//             end
+//         end
+//     end
 
-    assign yield = yield_reg;
+//     assign yield = yield_reg;
 
-endmodule
+// endmodule
 
 
-module golden_model_v2 (
-    input  wire        clk,
-    input  wire        rst,
+// module golden_model_v2 (
+//     input  wire        clk,
+//     input  wire        rst,
 
-    input  real soil_moisture,
-    input  real soil_ph,
-    input  real temperature,
-    input  real rainfall,
-    input  real humidity,
-    input  real sunlight_hours,
-    input  real NDVI_index,
-    input  real growing_days,
+//     input  real soil_moisture,
+//     input  real soil_ph,
+//     input  real temperature,
+//     input  real rainfall,
+//     input  real humidity,
+//     input  real sunlight_hours,
+//     input  real NDVI_index,
+//     input  real growing_days,
 
-    input  real crop_type,  // Use real to match Python thresholds
+//     input  real crop_type,  // Use real to match Python thresholds
 
-    output reg  [31:0] yield_int
-);
+//     output reg  [31:0] yield_int
+// );
  
-    // ================= Mean and Std values (from Python StandardScaler) =================
-    real SM_MEAN   = 26.750;
-    real PH_MEAN   = 6.524;
-    real TMP_MEAN  = 24.676;
-    real RF_MEAN   = 181.686;
-    real HUM_MEAN  = 65.194;
-    real SUN_MEAN  = 7.030;
-    real NDVI_MEAN = 0.602;
-    real GD_MEAN   = 119.496;
+//     // ================= Mean and Std values (from Python StandardScaler) =================
+//     real SM_MEAN   = 26.750;
+//     real PH_MEAN   = 6.524;
+//     real TMP_MEAN  = 24.676;
+//     real RF_MEAN   = 181.686;
+//     real HUM_MEAN  = 65.194;
+//     real SUN_MEAN  = 7.030;
+//     real NDVI_MEAN = 0.602;
+//     real GD_MEAN   = 119.496;
 
-    real SM_STD    = 10.150;
-    real PH_STD    = 0.586;
-    real TMP_STD   = 5.349;
-    real RF_STD    = 72.293;
-    real HUM_STD   = 14.643;
-    real SUN_STD   = 1.692;
-    real NDVI_STD  = 0.175;
-    real GD_STD    = 16.798;
+//     real SM_STD    = 10.150;
+//     real PH_STD    = 0.586;
+//     real TMP_STD   = 5.349;
+//     real RF_STD    = 72.293;
+//     real HUM_STD   = 14.643;
+//     real SUN_STD   = 1.692;
+//     real NDVI_STD  = 0.175;
+//     real GD_STD    = 16.798;
 
-    // ================= Decision tree thresholds (from Python scaled tree) =================
-    real GD_THRESH1   = -1.06;
-    real GD_THRESH2   = -0.10;
-    real PH_THRESH1   = 1.24;
-    real PH_THRESH2   = -0.48;
-    real NDVI_THRESH1 = 0.32;
-    real NDVI_THRESH2 = -1.25;
-    real SM_THRESH    = -0.08;
-    real SUN_THRESH   = -0.08;
-    real CROP1        = 3.91;
-    real CROP2        = 3.81;
+//     // ================= Decision tree thresholds (from Python scaled tree) =================
+//     real GD_THRESH1   = -1.06;
+//     real GD_THRESH2   = -0.10;
+//     real PH_THRESH1   = 1.24;
+//     real PH_THRESH2   = -0.48;
+//     real NDVI_THRESH1 = 0.32;
+//     real NDVI_THRESH2 = -1.25;
+//     real SM_THRESH    = -0.08;
+//     real SUN_THRESH   = -0.08;
+//     real CROP1        = 3.91;
+//     real CROP2        = 3.81;
 
-    // ================= Yield constants =================
-    real Y_3877 = 3877.71;
-    real Y_3889 = 3889.49;
-    real Y_4161 = 4161.82;
-    real Y_4142 = 4142.28;
-    real Y_4136 = 4136.84;
-    real Y_4010 = 4010.21;
-    real Y_4399 = 4399.57;
-    real Y_3646 = 3646.80;
-    real Y_4001 = 4001.40;
-    real Y_4203 = 4203.40;
-    real Y_3804 = 3804.23;
+//     // ================= Yield constants =================
+//     real Y_3877 = 3877.71;
+//     real Y_3889 = 3889.49;
+//     real Y_4161 = 4161.82;
+//     real Y_4142 = 4142.28;
+//     real Y_4136 = 4136.84;
+//     real Y_4010 = 4010.21;
+//     real Y_4399 = 4399.57;
+//     real Y_3646 = 3646.80;
+//     real Y_4001 = 4001.40;
+//     real Y_4203 = 4203.40;
+//     real Y_3804 = 3804.23;
 
-    // ================= Normalized values =================
-    real sm_norm, ph_norm, temp_norm, rain_norm;
-    real hum_norm, sun_norm, ndvi_norm, gd_norm;
-    real yield_real;
+//     // ================= Normalized values =================
+//     real sm_norm, ph_norm, temp_norm, rain_norm;
+//     real hum_norm, sun_norm, ndvi_norm, gd_norm;
+//     real yield_real;
 
-    // ================= FSM =================
-    parameter IDLE    = 2'b00;
-    parameter DECIDE  = 2'b01;
-    parameter CONVERT = 2'b10;
-    reg [1:0] state;
+//     // ================= FSM =================
+//     parameter IDLE    = 2'b00;
+//     parameter DECIDE  = 2'b01;
+//     parameter CONVERT = 2'b10;
+//     reg [1:0] state;
 
-    always @(posedge clk or posedge rst) begin
-        if (rst) begin
-            state      <= IDLE;
-            yield_int  <= 0;
-            yield_real <= 0.0;
-        end else begin
-            case (state)
-                IDLE: state <= DECIDE;
+//     always @(posedge clk or posedge rst) begin
+//         if (rst) begin
+//             state      <= IDLE;
+//             yield_int  <= 0;
+//             yield_real <= 0.0;
+//         end else begin
+//             case (state)
+//                 IDLE: state <= DECIDE;
 
-                DECIDE: begin
-                    // ================= Normalization =================
-                    sm_norm   = (soil_moisture - SM_MEAN)   / SM_STD;
-                    ph_norm   = (soil_ph - PH_MEAN)         / PH_STD;
-                    temp_norm = (temperature - TMP_MEAN)   / TMP_STD;
-                    rain_norm = (rainfall - RF_MEAN)       / RF_STD;
-                    hum_norm  = (humidity - HUM_MEAN)      / HUM_STD;
-                    sun_norm  = (sunlight_hours - SUN_MEAN)/ SUN_STD;
-                    ndvi_norm = (NDVI_index - NDVI_MEAN)   / NDVI_STD;
-                    gd_norm   = (growing_days - GD_MEAN)   / GD_STD;
+//                 DECIDE: begin
+//                     // ================= Normalization =================
+//                     sm_norm   = (soil_moisture - SM_MEAN)   / SM_STD;
+//                     ph_norm   = (soil_ph - PH_MEAN)         / PH_STD;
+//                     temp_norm = (temperature - TMP_MEAN)   / TMP_STD;
+//                     rain_norm = (rainfall - RF_MEAN)       / RF_STD;
+//                     hum_norm  = (humidity - HUM_MEAN)      / HUM_STD;
+//                     sun_norm  = (sunlight_hours - SUN_MEAN)/ SUN_STD;
+//                     ndvi_norm = (NDVI_index - NDVI_MEAN)   / NDVI_STD;
+//                     gd_norm   = (growing_days - GD_MEAN)   / GD_STD;
 
-                    // ================= Decision tree =================
-                    if (gd_norm <= GD_THRESH1) begin
-                        if (crop_type <= CROP1) yield_real = Y_3877;
-                        else                    yield_real = Y_3889;
-                    end else begin
-                        if (crop_type <= CROP2) begin
-                            if (ph_norm <= PH_THRESH1) begin
-                                if (ndvi_norm <= NDVI_THRESH1) begin
-                                    if (ph_norm <= PH_THRESH2) yield_real = Y_4161;
-                                    else                       yield_real = Y_4142;
-                                end else begin
-                                    if (sm_norm <= SM_THRESH) yield_real = Y_4136;
-                                    else                       yield_real = Y_4010;
-                                end
-                            end else yield_real = Y_4399;
-                        end else begin
-                            if (ndvi_norm <= NDVI_THRESH2) yield_real = Y_3646;
-                            else begin
-                                if (sun_norm <= SUN_THRESH)      yield_real = Y_4001;
-                                else if (gd_norm <= GD_THRESH2)  yield_real = Y_4203;
-                                else                             yield_real = Y_3804;
-                            end
-                        end
-                    end
+//                     // ================= Decision tree =================
+//                     if (gd_norm <= GD_THRESH1) begin
+//                         if (crop_type <= CROP1) yield_real = Y_3877;
+//                         else                    yield_real = Y_3889;
+//                     end else begin
+//                         if (crop_type <= CROP2) begin
+//                             if (ph_norm <= PH_THRESH1) begin
+//                                 if (ndvi_norm <= NDVI_THRESH1) begin
+//                                     if (ph_norm <= PH_THRESH2) yield_real = Y_4161;
+//                                     else                       yield_real = Y_4142;
+//                                 end else begin
+//                                     if (sm_norm <= SM_THRESH) yield_real = Y_4136;
+//                                     else                       yield_real = Y_4010;
+//                                 end
+//                             end else yield_real = Y_4399;
+//                         end else begin
+//                             if (ndvi_norm <= NDVI_THRESH2) yield_real = Y_3646;
+//                             else begin
+//                                 if (sun_norm <= SUN_THRESH)      yield_real = Y_4001;
+//                                 else if (gd_norm <= GD_THRESH2)  yield_real = Y_4203;
+//                                 else                             yield_real = Y_3804;
+//                             end
+//                         end
+//                     end
 
-                    state <= CONVERT;
-                end
+//                     state <= CONVERT;
+//                 end
 
-                CONVERT: begin
-                    // ================= Assign final yield =================
-                    yield_int <= $rtoi(yield_real);
-                    state     <= IDLE;
-                end
-            endcase
-        end
-    end
-endmodule
+//                 CONVERT: begin
+//                     // ================= Assign final yield =================
+//                     yield_int <= $rtoi(yield_real);
+//                     state     <= IDLE;
+//                 end
+//             endcase
+//         end
+//     end
+// endmodule
 
-module golden_model_v3 (
-    input  wire        clk,
-    input  wire        rst,
+// module golden_model_v3 (
+//     input  wire        clk,
+//     input  wire        rst,
 
-    input  real soil_moisture,
-    input  real soil_ph,
-    input  real temperature,
-    input  real rainfall,
-    input  real humidity,
-    input  real sunlight_hours,
-    input  real NDVI_index,
-    input  real growing_days,
+//     input  real soil_moisture,
+//     input  real soil_ph,
+//     input  real temperature,
+//     input  real rainfall,
+//     input  real humidity,
+//     input  real sunlight_hours,
+//     input  real NDVI_index,
+//     input  real growing_days,
 
-    input  int crop_type,
+//     input  int crop_type,
 
-    output reg  [31:0] yield_int
-);
+//     output reg  [31:0] yield_int
+// );
 
-    // ================= Decision tree thresholds (raw values from Python) =================
-    real HUM_THRESH1   = 76.42;
-    real SM_THRESH1    = 35.31;
-    real PH_THRESH1    = 6.13;
-    real GD_THRESH1    = 127.97;
-    real GD_THRESH2    = 125.53;
-    real TEMP_THRESH1  = 23.92;
-    real PH_THRESH2    = 7.15;
-    real SM_THRESH2    = 21.52;
-    real TEMP_THRESH2  = 26.21;
-    real NDVI_THRESH1  = 0.59;
-    real SUN_THRESH1   = 7.61;
-    real CROP_THRESH1  = 2.76;
+//     // ================= Decision tree thresholds (raw values from Python) =================
+//     real HUM_THRESH1   = 76.42;
+//     real SM_THRESH1    = 35.31;
+//     real PH_THRESH1    = 6.13;
+//     real GD_THRESH1    = 127.97;
+//     real GD_THRESH2    = 125.53;
+//     real TEMP_THRESH1  = 23.92;
+//     real PH_THRESH2    = 7.15;
+//     real SM_THRESH2    = 21.52;
+//     real TEMP_THRESH2  = 26.21;
+//     real NDVI_THRESH1  = 0.59;
+//     real SUN_THRESH1   = 7.61;
+//     real CROP_THRESH1  = 2.76;
 
-    // ================= Yield constants =================
-    real Y_4012 = 4012.16;
-    real Y_3824 = 3824.74;
-    real Y_4266 = 4266.83;
-    real Y_3802 = 3802.41;
-    real Y_4376 = 4376.08;
-    real Y_4476 = 4476.56;
-    real Y_4074 = 4074.15;
-    real Y_4004 = 4004.49;
-    real Y_3359 = 3359.99;
-    real Y_4160 = 4160.91;
-    real Y_3504 = 3504.10;
-    real Y_4718 = 4718.38;
-    real Y_4168 = 4168.09;
+//     // ================= Yield constants =================
+//     real Y_4012 = 4012.16;
+//     real Y_3824 = 3824.74;
+//     real Y_4266 = 4266.83;
+//     real Y_3802 = 3802.41;
+//     real Y_4376 = 4376.08;
+//     real Y_4476 = 4476.56;
+//     real Y_4074 = 4074.15;
+//     real Y_4004 = 4004.49;
+//     real Y_3359 = 3359.99;
+//     real Y_4160 = 4160.91;
+//     real Y_3504 = 3504.10;
+//     real Y_4718 = 4718.38;
+//     real Y_4168 = 4168.09;
 
-    real yield_real;
+//     real yield_real;
 
-    // ================= FSM =================
-    parameter IDLE    = 2'b00;
-    parameter DECIDE  = 2'b01;
-    parameter CONVERT = 2'b10;
-    reg [1:0] state;
+//     // ================= FSM =================
+//     parameter IDLE    = 2'b00;
+//     parameter DECIDE  = 2'b01;
+//     parameter CONVERT = 2'b10;
+//     reg [1:0] state;
 
-    always @(posedge clk or posedge rst) begin
-        if (rst) begin
-            state      <= IDLE;
-            yield_int  <= 0;
-            yield_real <= 0.0;
-        end else begin
-            case (state)
-                IDLE: state <= DECIDE;
+//     always @(posedge clk or posedge rst) begin
+//         if (rst) begin
+//             state      <= IDLE;
+//             yield_int  <= 0;
+//             yield_real <= 0.0;
+//         end else begin
+//             case (state)
+//                 IDLE: state <= DECIDE;
 
-                DECIDE: begin
-                    // ================= Decision tree =================
-                    if (humidity <= HUM_THRESH1) begin
-                        if (soil_moisture <= SM_THRESH1) begin
-                            if (soil_ph <= PH_THRESH1) begin
-                                if (growing_days <= GD_THRESH1) yield_real = Y_4012;
-                                else                            yield_real = Y_3824;
-                            end else begin
-                                if (growing_days <= GD_THRESH2) begin
-                                    if (temperature <= TEMP_THRESH1) yield_real = Y_4266;
-                                    else if (soil_ph <= PH_THRESH2)  yield_real = Y_3802;
-                                    else                             yield_real = Y_4376;
-                                end else begin
-                                    if (soil_moisture <= SM_THRESH2) yield_real = Y_4476;
-                                    else                             yield_real = Y_4074;
-                                end
-                            end
-                        end else begin
-                            if (temperature <= TEMP_THRESH2) yield_real = Y_4004;
-                            else                             yield_real = Y_3359;
-                        end
-                    end else begin
-                        if (NDVI_index <= NDVI_THRESH1) begin
-                            if (sunlight_hours <= SUN_THRESH1) yield_real = Y_4160;
-                            else                              yield_real = Y_3504;
-                        end else begin
-                            if (crop_type <= CROP_THRESH1) yield_real = Y_4718;
-                            else                           yield_real = Y_4168;
-                        end
-                    end
+//                 DECIDE: begin
+//                     // ================= Decision tree =================
+//                     if (humidity <= HUM_THRESH1) begin
+//                         if (soil_moisture <= SM_THRESH1) begin
+//                             if (soil_ph <= PH_THRESH1) begin
+//                                 if (growing_days <= GD_THRESH1) yield_real = Y_4012;
+//                                 else                            yield_real = Y_3824;
+//                             end else begin
+//                                 if (growing_days <= GD_THRESH2) begin
+//                                     if (temperature <= TEMP_THRESH1) yield_real = Y_4266;
+//                                     else if (soil_ph <= PH_THRESH2)  yield_real = Y_3802;
+//                                     else                             yield_real = Y_4376;
+//                                 end else begin
+//                                     if (soil_moisture <= SM_THRESH2) yield_real = Y_4476;
+//                                     else                             yield_real = Y_4074;
+//                                 end
+//                             end
+//                         end else begin
+//                             if (temperature <= TEMP_THRESH2) yield_real = Y_4004;
+//                             else                             yield_real = Y_3359;
+//                         end
+//                     end else begin
+//                         if (NDVI_index <= NDVI_THRESH1) begin
+//                             if (sunlight_hours <= SUN_THRESH1) yield_real = Y_4160;
+//                             else                              yield_real = Y_3504;
+//                         end else begin
+//                             if (crop_type <= CROP_THRESH1) yield_real = Y_4718;
+//                             else                           yield_real = Y_4168;
+//                         end
+//                     end
 
-                    state <= CONVERT;
-                end
+//                     state <= CONVERT;
+//                 end
 
-                CONVERT: begin
-                    yield_int <= $rtoi(yield_real);
-                    state     <= IDLE;
-                end
-            endcase
-        end
-    end
-endmodule
+//                 CONVERT: begin
+//                     yield_int <= $rtoi(yield_real);
+//                     state     <= IDLE;
+//                 end
+//             endcase
+//         end
+//     end
+// endmodule
+
+
+// module golden_model_m4(
+//     input  logic        clk,
+//     input  logic        rst,
+
+//     // Use REAL instead of wire
+//     input  real N,
+//     input  real P,
+//     input  real K,
+//     input  real Soil_pH,
+//     input  real Soil_Moisture,
+//     input  real Organic_Carbon,
+//     input  real Temperature,
+//     input  real Rainfall,
+//     input  real Sunlight_Hours,
+//     input  real Wind_Speed,
+//     input  real Crop_Type,
+//     input  real Fertilizer_Used,
+//     input  real Altitude,
+//     input  real Region,
+//     input  real Humidity,
+//     input  real Irrigation_Type,
+//     input  real Season,
+//     input  real Pesticide_Used,
+
+//     output logic [31:0] Yield_Int,
+//     output logic        ready
+// );
+
+//     real yield_value;
+
+//     // -------------------------------------------------
+//     // Decision Tree Logic (Combinational)
+//     // -------------------------------------------------
+//     always_comb begin
+
+//         if (Crop_Type <= 3.5) begin
+
+//             if (Crop_Type <= 1.5) begin
+
+//                 if (Crop_Type <= 0.5) begin
+
+//                     if (Fertilizer_Used <= 241.7200012207) begin
+//                         if (Rainfall <= 1684.3199462891)
+//                             yield_value = 6.1561862528;
+//                         else
+//                             yield_value = 7.6134615385;
+//                     end
+//                     else begin
+//                         if (Rainfall <= 1691.4949951172)
+//                             yield_value = 7.8491319444;
+//                         else
+//                             yield_value = 9.2312107623;
+//                     end
+
+//                 end
+//                 else begin
+
+//                     if (Fertilizer_Used <= 178.9549942017) begin
+//                         if (Rainfall <= 1416.7099609375)
+//                             yield_value = 8.4031226766;
+//                         else
+//                             yield_value = 9.8159595960;
+//                     end
+//                     else begin
+//                         if (Rainfall <= 1387.2299804688)
+//                             yield_value = 9.9202580645;
+//                         else
+//                             yield_value = 11.2712975391;
+//                     end
+
+//                 end
+
+//             end
+//             else begin
+
+//                 if (Crop_Type <= 2.5) begin
+
+//                     if (Rainfall <= 1361.0650024414) begin
+//                         if (Fertilizer_Used <= 148.4700012207)
+//                             yield_value = 23.0707486631;
+//                         else
+//                             yield_value = 24.5428333333;
+//                     end
+//                     else begin
+//                         if (Fertilizer_Used <= 225.2700042725)
+//                             yield_value = 24.9158041958;
+//                         else
+//                             yield_value = 26.2805974843;
+//                     end
+
+//                 end
+//                 else begin
+
+//                     if (Fertilizer_Used <= 191.8799972534) begin
+//                         if (Rainfall <= 1219.75)
+//                             yield_value = 7.7424193548;
+//                         else
+//                             yield_value = 9.0680177515;
+//                     end
+//                     else begin
+//                         if (Rainfall <= 1396.0150146484)
+//                             yield_value = 9.3436419753;
+//                         else
+//                             yield_value = 10.6223060345;
+//                     end
+
+//                 end
+
+//             end
+
+//         end
+//         else begin
+
+//             if (Crop_Type <= 4.5) begin
+
+//                 if (Fertilizer_Used <= 235.1600036621) begin
+//                     if (Rainfall <= 1314.0249633789) begin
+//                         if (Soil_Moisture <= 25.6799993515)
+//                             yield_value = 72.8080263158;
+//                         else
+//                             yield_value = 73.7167857143;
+//                     end
+//                     else begin
+//                         if (Fertilizer_Used <= 128.3300018311)
+//                             yield_value = 74.1929166667;
+//                         else
+//                             yield_value = 75.1003597122;
+//                     end
+//                 end
+//                 else begin
+//                     if (Rainfall <= 1614.2600097656) begin
+//                         if (Soil_Moisture <= 37.9050006866)
+//                             yield_value = 74.5881203008;
+//                         else
+//                             yield_value = 75.4842666667;
+//                     end
+//                     else begin
+//                         if (Fertilizer_Used <= 319.0750122070)
+//                             yield_value = 76.1159793814;
+//                         else
+//                             yield_value = 77.0018181818;
+//                     end
+//                 end
+
+//             end
+//             else begin
+
+//                 if (Fertilizer_Used <= 218.9599990845) begin
+//                     if (Rainfall <= 965.1600036621) begin
+//                         if (Soil_Moisture <= 32.0949993134)
+//                             yield_value = 6.5106250000;
+//                         else
+//                             yield_value = 7.4188524590;
+//                     end
+//                     else begin
+//                         if (Soil_Moisture <= 28.3550004959)
+//                             yield_value = 7.6213669065;
+//                         else
+//                             yield_value = 8.5507951807;
+//                     end
+//                 end
+//                 else begin
+//                     if (Rainfall <= 1326.2550048828) begin
+//                         if (Soil_Moisture <= 53.4349994659)
+//                             yield_value = 8.6328571429;
+//                         else
+//                             yield_value = 9.6498181818;
+//                     end
+//                     else begin
+//                         if (Soil_Moisture <= 34.8450012207)
+//                             yield_value = 9.4889393939;
+//                         else
+//                             yield_value = 10.5236448598;
+//                     end
+//                 end
+
+//             end
+
+//         end
+
+//     end
+
+//     // -------------------------------------------------
+//     // Sequential Output Logic
+//     // -------------------------------------------------
+//     always_ff @(posedge clk or posedge rst) begin
+//         if (rst) begin
+//             Yield_Int <= 0;
+//             ready     <= 0;
+//         end
+//         else begin
+//             Yield_Int <= $rtoi(yield_value);  // convert real to integer
+//             ready     <= 1;
+//         end
+//     end
+
+// endmodule

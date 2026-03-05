@@ -1,0 +1,37 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/CVS": true,
+        "**/wlf*": true,
+        "**/work": true,
+        "**/*.mpf": true,
+        "**/*.cr.mti": true,
+        "**/*.ucdb": true,
+        "**/*.vstf": true,
+        "**/*.vcd": true,
+        "**/*.wlf": true,
+        "**/modelsim.ini": true,
+        "**/transcript": true,
+        "**/tcl_stacktrace.txt": true,
+        "**/~$*": true
+    },
+    "hide-files.files": [
+        "**/work",
+        "**/*.mpf",
+        "**/*.cr.mti",
+        "**/*.ucdb",
+        "**/*.vstf",
+        "**/*.vcd",
+        "**/*.wlf",
+        "**/modelsim.ini",
+        "**/transcript",
+        "**/tcl_stacktrace.txt",
+        "**/~$*"
+    ],
+    "stm32-for-vscode.openOCDPath": false,
+    "stm32-for-vscode.armToolchainPath": false
+}

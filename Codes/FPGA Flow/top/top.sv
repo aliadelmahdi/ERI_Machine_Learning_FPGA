@@ -1,316 +1,234 @@
-import uvm_pkg::*;
-import shared_pkg::*;
-`timescale 1ns/1ns
-
+`timescale 1ns/1ps
 module tb_top;
 
-    // Clock / Reset
+    // Clock and reset
     logic clk;
     logic rst;
 
-    // DUT float inputs (32-bit single precision)
-    logic [31:0] soil_moisture_f, soil_ph_f, temperature_f;
-    logic [31:0] rainfall_f, humidity_f, sunlight_hours_f;
-    logic [31:0] NDVI_index_f, growing_days_f;
-    logic [31:0] crop_number;
-    crop_type_e crop_type;
+    // Inputs
+    logic [63:0] N, P, K, Soil_pH, Soil_Moisture, Organic_Carbon, Temperature;
+    logic [63:0] Humidity, Rainfall, Sunlight_Hours, Wind_Speed,Soil_Type;
+    logic [63:0] Crop_Type, Fertilizer_Used, Altitude, Region, Season, Irrigation_Type, Pesticide_Used;
 
-    // DUT output
-    logic [31:0] yield_int;
+    // Output
+    logic [63:0] Yield_Int;
+    logic ready;
 
-    // Golden model variables (real)
-    real soil_moisture, soil_ph, temperature;
-    real rainfall, humidity, sunlight_hours, NDVI_index, growing_days;
-
-    logic [31:0] golden_yield_int_v1;
-    logic [31:0] golden_yield_int_v2;
-    logic [31:0] golden_yield_int_v3;
+    // Instantiate DUT
+    crop_yield_predictor dut (
+        .clk(clk),
+        .rst(rst),
+        .N(N), .P(P), .K(K), .Soil_pH(Soil_pH), .Soil_Moisture(Soil_Moisture),
+        .Organic_Carbon(Organic_Carbon), .Temperature(Temperature), .Humidity(Humidity),
+        .Rainfall(Rainfall), .Sunlight_Hours(Sunlight_Hours), .Wind_Speed(Wind_Speed),
+        .Crop_Type(Crop_Type), .Fertilizer_Used(Fertilizer_Used),
+        .Altitude(Altitude), .Region(Region), .Season(Season),
+        .Irrigation_Type(Irrigation_Type), .Pesticide_Used(Pesticide_Used),
+        .Yield_Int(Yield_Int), .ready(ready),.Soil_Type(Soil_Type)
+    );
 
     // Clock generation
     initial clk = 0;
-    always #5 clk = ~clk;
+    always #5 clk = ~clk; // 100 MHz clock
 
-    // DUT
-    SIS dut (
-        .clk(clk),
-        .rst(rst),
-        .soil_moisture_f(soil_moisture_f),
-        .soil_ph_f(soil_ph_f),
-        .temperature_f(temperature_f),
-        .rainfall_f(rainfall_f),
-        .humidity_f(humidity_f),
-        .sunlight_hours_f(sunlight_hours_f),
-        .NDVI_index_f(NDVI_index_f),
-        .growing_days_f(growing_days_f),
-        .crop_type(crop_type),
-        .yield_int(yield_int)
-    );
-
-//     // Golden model (v1) scaling - no FSM
-//     golden_model_v1 golden_model_v1_inst (
-//         .clk(clk),
-//         .rst(rst),
-//         .soil_moisture(soil_moisture),
-//         .soil_ph(soil_ph),
-//         .temperature(temperature),
-//         .rainfall(rainfall),
-//         .humidity(humidity),
-//         .sunlight_hours(sunlight_hours),
-//         .NDVI_index(NDVI_index),
-//         .growing_days(growing_days),
-//         .crop_type(crop_number),
-//         .yield(golden_yield_int_v1)
-//     );
-
-//     // Golden model (v2) scalling - FSM
-//     golden_model_v2 golden_model_v2_inst (
-//         .clk(clk),
-//         .rst(rst),
-//         .soil_moisture(soil_moisture),
-//         .soil_ph(soil_ph),
-//         .temperature(temperature),
-//         .rainfall(rainfall),
-//         .humidity(humidity),
-//         .sunlight_hours(sunlight_hours),
-//         .NDVI_index(NDVI_index),
-//         .growing_days(growing_days),
-//         .crop_type(crop_number),
-//         .yield_int(golden_yield_int_v2)
-//     );
-
-     // Golden model (v3) - no scalling - FSM
-        golden_model_v3 golden_model_v3_inst (
-                .clk(clk),
-                .rst(rst),
-                .soil_moisture(soil_moisture),
-                .soil_ph(soil_ph),
-                .temperature(temperature),
-                .rainfall(rainfall),
-                .humidity(humidity),
-                .sunlight_hours(sunlight_hours),
-                .NDVI_index(NDVI_index),
-                .growing_days(growing_days),
-                .crop_type(crop_number),
-                .yield_int(golden_yield_int_v3)
-        );
-
-
+    // ===============================
+    // Numeric-encoded CSV data
+    // ===============================
+    real csv_data [0:106][0:19];
+    real actual_yield [0:106];
+ int correct_count;
+        int error_count;
+        real predicted;
+        real tol;
     initial begin
+        // Columns: N,P,K,Soil_pH,Soil_Moisture,Soil_Type_enc,Organic_Carbon,Temperature,
+        //          Humidity,Rainfall,Sunlight_Hours,Wind_Speed,Region_enc,Altitude,
+        //          Season_enc,Crop_Type_enc,Irrigation_Type_enc,Fertilizer_Used,Pesticide_Used,Actual_Yield
+        csv_data[0]   = '{132, 62, 22, 6.35, 59.78, 0, 0.43, 22.97, 53.89, 1305.68, 7.73, 15.96, 0, 36, 1, 1, 0, 223.48, 23.36, 9.9202};
+        csv_data[1]   = '{122, 71, 66, 5.98, 25.54, 2, 0.65, 17.0, 76.9, 1942.05, 9.25, 12.6, 2, 1561, 1, 2, 0, 161.54, 4.42, 24.9158};
+        csv_data[2]   = '{44, 35, 104, 8.07, 25.87, 2, 0.79, 25.52, 44.78, 2216.2, 8.5, 15.63, 2, 1870, 1, 3, 2, 184.62, 6.29, 9.0680};
+        csv_data[3]   = '{136, 96, 113, 4.83, 42.97, 3, 0.45, 18.59, 31.89, 607.18, 8.75, 5.49, 1, 765, 0, 4, 2, 274.02, 2.72, 75.4842};
+        csv_data[4]   = '{101, 34, 42, 5.84, 48.01, 3, 0.69, 22.74, 46.27, 483.47, 8.0, 7.44, 0, 1143, 2, 5, 2, 72.69, 15.37, 7.4188};
+        csv_data[5]   = '{50, 29, 22, 6.87, 32.73, 3, 1.2, 13.88, 68.91, 1993.65, 10.17, 11.25, 1, 1739, 0, 3, 0, 335.8, 3.8, 10.6223};
+        csv_data[6]   = '{132, 83, 148, 7.46, 40.98, 3, 0.92, 14.92, 87.21, 2433.33, 10.28, 13.82, 1, 1360, 1, 2, 0, 301.54, 2.84, 26.2805};
+        csv_data[7]   = '{151, 91, 86, 7.58, 26.39, 2, 0.85, 28.42, 53.74, 1499.4, 8.24, 17.7, 2, 1348, 0, 3, 2, 317.16, 19.71, 10.6223};
+        csv_data[8]   = '{104, 65, 90, 4.96, 21.8, 3, 0.86, 26.96, 77.85, 1881.33, 9.12, 2.16, 1, 54, 1, 0, 3, 253.49, 17.82, 9.2312};
+        csv_data[9]   = '{117, 90, 86, 7.21, 26.91, 0, 1.29, 15.14, 42.03, 1045.25, 7.24, 10.21, 2, 57, 1, 4, 3, 231.33, 21.83, 73.7167};
+        csv_data[10]  = '{146, 76, 74, 7.25, 60.82, 1, 1.59, 18.84, 81.11, 2486.29, 5.89, 10.32, 2, 744, 2, 0, 2, 159.4, 14.14, 7.6134};
+        csv_data[11]  = '{129, 99, 50, 5.53, 55.09, 0, 1.07, 16.64, 75.93, 2228.76, 8.45, 16.4, 2, 267, 0, 1, 0, 147.2, 6.43, 9.8159};
+        csv_data[12]  = '{133, 51, 85, 5.18, 22.01, 1, 1.28, 33.92, 56.89, 1767.96, 9.71, 5.01, 4, 1474, 2, 1, 3, 85.79, 18.41, 9.8159};
+        csv_data[13]  = '{160, 20, 120, 7.35, 17.33, 2, 0.78, 20.94, 83.69, 1066.5, 5.84, 3.71, 2, 34, 2, 2, 2, 69.79, 11.88, 23.0707};
+        csv_data[14]  = '{179, 85, 83, 5.65, 19.66, 1, 1.42, 22.18, 32.27, 1395.15, 8.38, 9.2, 0, 1878, 0, 2, 2, 75.71, 11.95, 24.9158};
+        csv_data[15]  = '{82, 40, 50, 4.81, 29.67, 3, 0.85, 29.95, 77.15, 998.65, 8.36, 13.34, 3, 255, 2, 5, 0, 111.93, 4.82, 8.5507};
+        csv_data[16]  = '{31, 22, 136, 5.56, 55.57, 2, 1.52, 19.77, 32.11, 1378.81, 10.43, 17.52, 1, 1550, 2, 2, 1, 106.97, 18.8, 24.9158};
+        csv_data[17]  = '{117, 87, 85, 4.91, 31.07, 3, 1.27, 21.33, 81.9, 424.46, 9.31, 10.72, 0, 1582, 2, 1, 1, 287.75, 21.63, 9.9202};
+        csv_data[18]  = '{67, 18, 66, 5.65, 24.28, 0, 1.22, 33.94, 40.61, 564.12, 9.68, 13.33, 2, 1304, 2, 3, 3, 90.49, 10.42, 7.7424};
+        csv_data[19]  = '{159, 35, 41, 5.94, 34.79, 0, 0.68, 33.84, 32.3, 843.05, 8.0, 5.73, 0, 1132, 2, 0, 2, 282.08, 5.22, 7.8491};
+        csv_data[20]  = '{50, 45, 113, 5.72, 21.2, 3, 1.33, 28.14, 48.53, 2559.99, 9.09, 12.5, 0, 752, 1, 3, 0, 187.62, 3.49, 9.0680};
+        csv_data[21]  = '{87, 35, 102, 7.93, 38.51, 1, 0.44, 26.77, 40.72, 1463.51, 5.71, 5.12, 0, 130, 1, 3, 0, 338.35, 3.1, 10.6223};
+        csv_data[22]  = '{51, 39, 65, 5.59, 48.78, 0, 1.0, 15.43, 69.11, 1501.43, 8.06, 9.42, 4, 1681, 2, 4, 0, 235.21, 8.19, 75.4842};
+        csv_data[23]  = '{118, 29, 108, 6.39, 33.44, 1, 1.26, 24.2, 58.34, 1621.79, 8.64, 1.79, 3, 1145, 0, 2, 2, 221.81, 19.81, 24.9158};
+        csv_data[24]  = '{78, 49, 138, 8.06, 23.68, 0, 1.45, 18.23, 37.78, 1550.47, 9.84, 6.5, 4, 1760, 1, 5, 2, 246.43, 22.92, 9.4889};
+        csv_data[25]  = '{88, 63, 65, 7.79, 37.66, 3, 1.04, 31.89, 84.97, 515.52, 5.16, 14.29, 2, 1585, 2, 2, 2, 203.21, 20.04, 24.5428};
+        csv_data[26]  = '{44, 57, 20, 5.85, 53.12, 3, 0.64, 28.84, 52.07, 1108.74, 6.29, 2.15, 0, 1601, 0, 4, 2, 225.57, 9.48, 73.7167};
+        csv_data[27]  = '{80, 55, 115, 5.91, 18.83, 0, 1.4, 21.33, 46.97, 468.7, 9.54, 6.41, 3, 1703, 0, 2, 3, 264.76, 15.87, 24.5428};
+        csv_data[28]  = '{137, 51, 80, 6.82, 18.55, 0, 1.3, 26.05, 71.88, 474.07, 7.04, 3.9, 0, 2022, 2, 4, 3, 304.68, 3.39, 74.5881};
+        csv_data[29]  = '{84, 71, 124, 7.92, 30.91, 1, 0.5, 22.63, 53.61, 493.05, 7.39, 11.67, 2, 1022, 0, 1, 0, 327.35, 18.9, 9.9202};
+        csv_data[30]  = '{93, 56, 100, 4.83, 35.75, 1, 1.43, 14.39, 38.73, 2543.59, 8.34, 13.64, 1, 231, 2, 1, 0, 259.6, 16.69, 11.2712};
+        csv_data[31]  = '{160, 61, 33, 6.14, 25.82, 1, 1.55, 33.42, 64.94, 847.42, 9.09, 2.87, 1, 523, 0, 4, 2, 326.09, 11.65, 74.5881};
+        csv_data[32]  = '{80, 75, 64, 7.69, 16.35, 3, 1.0, 36.95, 31.82, 468.3, 6.02, 9.89, 3, 255, 1, 5, 0, 217.8, 18.89, 6.5106};
+        csv_data[33]  = '{164, 28, 96, 6.2, 25.98, 0, 0.35, 37.91, 67.63, 307.14, 10.05, 12.58, 0, 1412, 2, 4, 1, 128.45, 17.69, 73.7167};
+        csv_data[34]  = '{50, 82, 85, 7.25, 36.77, 2, 1.49, 33.68, 82.05, 1833.16, 6.55, 17.83, 0, 278, 0, 2, 0, 158.23, 22.49, 24.9158};
+        csv_data[35]  = '{102, 67, 51, 7.15, 18.97, 1, 0.46, 34.65, 45.72, 1842.44, 5.83, 4.7, 0, 2006, 2, 3, 3, 310.38, 12.33, 10.6223};
+        csv_data[36]  = '{47, 98, 115, 5.5, 50.79, 2, 1.12, 11.67, 81.14, 962.35, 8.9, 2.25, 1, 390, 2, 5, 3, 246.68, 20.34, 8.6328};
+        csv_data[37]  = '{161, 48, 77, 6.33, 42.61, 3, 0.82, 33.46, 44.7, 1000.17, 6.52, 5.38, 4, 1489, 1, 3, 2, 140.83, 15.47, 7.7424};
+        csv_data[38]  = '{118, 90, 123, 6.73, 36.72, 1, 1.59, 19.1, 42.15, 1145.48, 7.54, 10.53, 1, 1590, 0, 5, 0, 227.45, 17.76, 8.6328};
+        csv_data[39]  = '{89, 38, 75, 7.23, 40.94, 1, 1.49, 14.13, 72.92, 1185.24, 6.31, 11.76, 0, 1490, 2, 2, 1, 252.56, 3.69, 24.5428};
+        csv_data[40]  = '{43, 34, 86, 7.6, 47.79, 2, 1.32, 25.66, 33.93, 2242.51, 9.97, 7.44, 1, 2047, 1, 5, 1, 349.51, 8.5, 10.5236};
+        csv_data[41]  = '{38, 83, 137, 7.38, 64.74, 2, 0.56, 27.11, 32.44, 2649.01, 7.5, 8.38, 4, 1790, 1, 1, 2, 206.91, 5.7, 11.2712};
+        csv_data[42]  = '{119, 44, 57, 4.9, 53.76, 0, 1.21, 24.54, 57.36, 1770.52, 4.46, 10.31, 1, 925, 0, 4, 3, 321.39, 2.99, 77.0018};
+        csv_data[43]  = '{82, 21, 131, 7.08, 42.02, 2, 1.04, 29.58, 32.05, 1280.08, 4.4, 3.64, 4, 946, 2, 3, 0, 158.52, 12.98, 9.0680};
+        csv_data[44]  = '{159, 50, 73, 6.49, 53.53, 3, 0.48, 31.43, 59.8, 1036.98, 6.55, 17.35, 1, 109, 0, 5, 1, 245.11, 3.72, 9.6498};
+        csv_data[45]  = '{113, 52, 53, 6.75, 38.76, 1, 1.33, 14.11, 68.97, 2373.72, 6.85, 12.44, 2, 338, 0, 3, 3, 289.75, 5.17, 10.6223};
+        csv_data[46]  = '{121, 94, 58, 6.07, 30.55, 2, 0.41, 28.51, 43.69, 525.2, 4.26, 9.86, 1, 340, 1, 3, 2, 330.02, 12.02, 9.3436};
+        csv_data[47]  = '{140, 66, 131, 7.23, 28.1, 3, 0.93, 11.63, 83.93, 1382.97, 9.97, 13.44, 2, 648, 1, 3, 0, 199.87, 14.38, 9.3436};
+        csv_data[48]  = '{37, 29, 107, 7.09, 34.97, 2, 0.85, 23.46, 42.02, 1963.25, 7.55, 2.68, 4, 1117, 2, 2, 3, 307.98, 6.23, 26.2805};
+        csv_data[49]  = '{64, 60, 67, 6.77, 15.11, 2, 1.35, 13.0, 44.25, 926.39, 7.83, 14.37, 2, 630, 2, 2, 1, 212.02, 3.29, 24.5428};
+        csv_data[50]  = '{110, 37, 68, 7.73, 23.85, 2, 0.86, 23.49, 84.78, 636.41, 8.56, 4.28, 4, 2132, 1, 2, 1, 247.98, 19.01, 24.5428};
+        csv_data[51]  = '{79, 26, 53, 5.15, 21.33, 0, 1.2, 15.26, 71.25, 1929.48, 5.52, 2.36, 3, 1890, 0, 1, 0, 130.08, 18.37, 9.8159};
+        csv_data[52]  = '{133, 58, 119, 5.82, 63.02, 1, 0.92, 32.03, 61.72, 1798.85, 7.66, 16.04, 3, 1184, 0, 3, 2, 299.02, 5.95, 10.6223};
+        csv_data[53]  = '{161, 29, 37, 6.48, 18.24, 1, 1.06, 36.99, 49.81, 1848.23, 5.56, 12.94, 4, 720, 0, 0, 0, 340.82, 18.26, 9.2312};
+        csv_data[54]  = '{31, 63, 89, 8.06, 40.05, 1, 0.61, 15.09, 76.14, 2745.54, 6.91, 1.65, 1, 1634, 0, 3, 2, 285.67, 5.59, 10.6223};
+        csv_data[55]  = '{163, 35, 133, 5.04, 60.99, 0, 0.56, 32.1, 65.3, 1107.5, 8.39, 16.84, 2, 1396, 1, 5, 3, 138.24, 15.64, 8.5507};
+        csv_data[56]  = '{83, 29, 53, 5.95, 45.38, 2, 1.22, 14.38, 50.52, 2764.55, 5.65, 17.97, 0, 528, 0, 1, 2, 81.3, 17.55, 9.8159};
+        csv_data[57]  = '{135, 28, 70, 7.95, 39.76, 1, 0.46, 23.01, 79.56, 417.14, 10.19, 11.52, 1, 1546, 0, 1, 0, 76.99, 8.66, 8.4031};
+        csv_data[58]  = '{33, 56, 124, 7.85, 52.15, 1, 0.53, 28.77, 77.68, 401.03, 6.06, 3.49, 2, 956, 1, 4, 3, 267.4, 6.63, 75.4842};
+        csv_data[59]  = '{83, 94, 112, 7.74, 32.67, 2, 1.52, 26.13, 86.45, 2446.63, 6.13, 9.77, 4, 1143, 1, 2, 3, 288.33, 14.62, 26.2805};
+        csv_data[60]  = '{175, 29, 88, 5.85, 24.69, 1, 0.63, 11.71, 89.69, 1104.92, 10.45, 12.52, 4, 760, 2, 3, 3, 253.03, 0.94, 9.3436};
+        csv_data[61]  = '{73, 77, 108, 7.68, 57.36, 2, 0.72, 20.88, 30.69, 1193.15, 6.72, 4.15, 4, 631, 2, 2, 2, 253.83, 24.48, 24.5428};
+        csv_data[62]  = '{43, 82, 122, 6.52, 17.83, 0, 1.12, 24.1, 49.21, 427.93, 4.96, 7.58, 1, 1542, 2, 1, 2, 326.5, 1.37, 9.9202};
+        csv_data[63]  = '{124, 41, 102, 6.91, 55.39, 1, 0.87, 21.74, 41.56, 305.94, 6.99, 2.85, 1, 1116, 2, 2, 3, 189.05, 23.25, 24.5428};
+        csv_data[64]  = '{77, 67, 30, 5.61, 20.17, 1, 1.03, 29.96, 42.82, 1882.29, 6.37, 10.87, 2, 1641, 1, 1, 0, 203.24, 24.81, 11.2712};
+        csv_data[65]  = '{44, 66, 55, 7.2, 46.28, 2, 0.49, 36.65, 81.89, 1606.74, 7.47, 6.84, 3, 1597, 2, 0, 1, 130.99, 3.08, 6.1561};
+        csv_data[66]  = '{69, 77, 101, 5.91, 38.85, 3, 1.17, 30.03, 88.5, 2119.33, 8.29, 7.0, 4, 101, 1, 4, 1, 349.95, 13.98, 77.0018};
+        csv_data[67]  = '{111, 87, 57, 5.97, 64.93, 0, 0.5, 27.7, 86.4, 868.73, 6.31, 8.82, 1, 1811, 1, 5, 3, 333.85, 17.22, 9.6498};
+        csv_data[68]  = '{140, 67, 108, 6.97, 34.4, 1, 1.27, 14.47, 71.79, 2418.67, 8.98, 5.3, 0, 571, 1, 5, 1, 128.07, 20.1, 8.5507};
+        csv_data[69]  = '{82, 71, 20, 5.62, 62.86, 2, 0.98, 20.47, 63.3, 955.52, 6.12, 11.49, 3, 298, 2, 4, 2, 126.04, 1.2, 73.7167};
+        csv_data[70]  = '{53, 66, 123, 5.56, 35.19, 0, 1.36, 26.45, 68.28, 1419.78, 9.87, 12.42, 2, 1777, 2, 2, 0, 284.13, 9.14, 26.2805};
+        csv_data[71]  = '{153, 57, 84, 6.06, 49.09, 2, 0.52, 38.02, 81.34, 1220.4, 10.73, 5.27, 4, 52, 0, 4, 1, 113.85, 5.45, 73.7167};
+        csv_data[72]  = '{70, 21, 20, 7.45, 47.18, 3, 0.79, 19.14, 30.42, 2437.96, 4.1, 14.1, 3, 2018, 0, 5, 3, 118.53, 22.18, 8.5507};
+        csv_data[73]  = '{44, 56, 144, 5.56, 19.32, 1, 1.4, 20.14, 55.7, 2352.53, 4.82, 1.91, 0, 1389, 2, 4, 3, 308.0, 24.3, 76.1159};
+        csv_data[74]  = '{74, 18, 79, 7.48, 52.17, 3, 1.34, 27.69, 60.39, 1404.25, 7.57, 12.76, 1, 1346, 0, 0, 2, 232.29, 16.17, 6.1561};
+        csv_data[75]  = '{94, 83, 44, 7.17, 25.43, 1, 1.56, 36.99, 85.41, 1193.61, 8.36, 8.39, 3, 1768, 2, 0, 3, 141.17, 15.6, 6.1561};
+        csv_data[76]  = '{118, 19, 110, 7.11, 34.42, 3, 0.59, 26.3, 40.32, 2263.65, 10.37, 11.57, 1, 404, 2, 5, 3, 176.54, 11.3, 8.5507};
+        csv_data[77]  = '{100, 89, 69, 6.41, 54.11, 1, 1.0, 15.23, 74.66, 834.64, 8.41, 7.77, 1, 673, 2, 3, 3, 109.77, 5.2, 7.7424};
+        csv_data[78]  = '{38, 94, 111, 7.34, 62.22, 2, 0.32, 12.26, 85.44, 2652.35, 10.05, 7.42, 1, 2004, 1, 3, 2, 231.99, 5.03, 10.6223};
+        csv_data[79]  = '{117, 55, 51, 4.85, 42.99, 0, 1.55, 36.67, 75.84, 1094.92, 7.66, 3.44, 1, 867, 0, 0, 0, 105.2, 10.7, 6.1561};
+        csv_data[80]  = '{158, 18, 52, 5.84, 40.97, 1, 0.53, 30.1, 30.62, 1458.46, 8.83, 13.12, 0, 1602, 2, 2, 2, 152.58, 3.58, 24.9158};
+        csv_data[81]  = '{165, 16, 45, 7.11, 40.25, 1, 1.48, 16.62, 69.57, 2320.76, 10.46, 6.1, 1, 1315, 2, 1, 2, 341.01, 9.39, 11.2712};
+        csv_data[82]  = '{92, 81, 61, 8.16, 55.83, 2, 1.18, 31.74, 42.57, 2287.88, 8.74, 8.32, 4, 362, 0, 1, 2, 224.74, 17.19, 11.2712};
+        csv_data[83]  = '{168, 35, 80, 4.81, 64.66, 3, 1.52, 31.59, 66.31, 2032.83, 7.38, 13.89, 0, 1261, 2, 5, 2, 160.76, 22.09, 8.5507};
+        csv_data[84]  = '{110, 84, 60, 6.53, 46.68, 1, 0.62, 33.16, 64.27, 589.52, 8.15, 4.91, 0, 1185, 1, 3, 1, 328.4, 13.84, 9.3436};
+        csv_data[85]  = '{165, 57, 149, 7.94, 33.93, 3, 0.75, 36.77, 87.42, 905.44, 7.01, 8.66, 2, 1413, 2, 5, 1, 167.27, 13.46, 7.4189};
+        csv_data[86]  = '{62, 96, 118, 7.74, 25.93, 2, 0.51, 14.56, 41.42, 2083.86, 5.05, 6.43, 1, 938, 2, 3, 0, 270.29, 4.82, 10.6223};
+        csv_data[87]  = '{152, 83, 117, 4.88, 24.94, 1, 0.85, 38.7, 33.03, 2448.51, 9.39, 13.16, 3, 1838, 0, 0, 2, 155.43, 20.22, 7.6135};
+        csv_data[88]  = '{34, 23, 50, 6.6, 57.81, 0, 1.53, 39.96, 66.68, 720.52, 6.9, 17.36, 0, 1922, 1, 1, 0, 147.89, 14.66, 8.4031};
+        csv_data[89]  = '{70, 98, 134, 4.81, 64.62, 1, 1.04, 10.43, 50.64, 2772.95, 4.66, 17.16, 2, 2178, 1, 3, 2, 197.29, 23.91, 10.6223};
+        csv_data[90]  = '{57, 42, 67, 7.48, 49.9, 2, 0.84, 12.74, 75.01, 1853.02, 8.93, 9.45, 3, 1187, 0, 4, 0, 221.51, 16.22, 75.1004};
+        csv_data[91]  = '{164, 40, 21, 5.85, 62.79, 3, 0.72, 23.02, 89.59, 2353.06, 9.35, 3.87, 3, 338, 0, 4, 0, 184.6, 14.89, 75.1004};
+        csv_data[92]  = '{101, 96, 120, 7.4, 32.5, 1, 1.06, 11.03, 54.08, 2263.79, 4.74, 17.42, 0, 1231, 2, 0, 0, 301.42, 7.28, 9.2312};
+        csv_data[93]  = '{41, 97, 147, 8.01, 46.38, 2, 1.24, 32.05, 39.11, 568.07, 7.19, 16.15, 3, 128, 0, 2, 2, 260.77, 15.13, 24.5428};
+        csv_data[94]  = '{62, 17, 78, 8.12, 40.58, 2, 0.83, 29.52, 63.25, 1156.57, 7.37, 3.69, 1, 327, 0, 5, 2, 339.02, 16.66, 8.6329};
+        csv_data[95]  = '{77, 87, 139, 7.84, 39.1, 2, 0.6, 33.28, 50.77, 1446.04, 5.64, 5.65, 1, 988, 0, 2, 0, 171.07, 7.26, 24.9158};
+        csv_data[96]  = '{91, 63, 57, 5.49, 46.62, 3, 1.06, 39.95, 77.68, 950.16, 9.59, 2.89, 3, 1323, 1, 5, 0, 216.97, 1.48, 7.4189};
+        csv_data[97]  = '{66, 31, 126, 5.46, 30.52, 3, 0.78, 38.0, 62.06, 2005.98, 7.72, 17.25, 1, 118, 2, 1, 3, 311.39, 17.14, 11.2713};
+        csv_data[98]  = '{128, 77, 40, 6.93, 47.03, 0, 1.59, 19.0, 84.49, 1703.6, 8.01, 2.2, 1, 2186, 2, 2, 0, 139.5, 12.49, 24.9158};
+        csv_data[99]  = '{133, 69, 61, 6.65, 48.64, 0, 0.87, 21.89, 80.29, 2752.35, 6.51, 7.7, 0, 508, 2, 4, 2, 277.19, 9.76, 76.1160};
+        csv_data[100] = '{64, 37, 29, 4.83, 56.81, 1, 0.86, 33.28, 84.85, 756.79, 5.72, 15.25, 2, 487, 0, 4, 1, 231.42, 17.94, 72.4};
+        csv_data[101] = '{130, 48, 52, 6.13, 51.52, 2, 1.39, 21.64, 47.94, 1702.9, 9.62, 10.23, 3, 881, 1, 4, 0, 231.63, 18.41, 75.1004};
+        csv_data[102] = '{160, 83, 88, 7.88, 30.99, 0, 0.63, 30.96, 84.17, 2550.33, 7.73, 9.78, 1, 51, 2, 4, 1, 136.05, 8.1, 75.1004};
+        csv_data[103] = '{30, 29, 99, 7.85, 37.54, 3, 0.39, 37.56, 81.99, 398.92, 5.69, 7.51, 4, 31, 1, 2, 2, 138.28, 1.45, 23.0707};
+        csv_data[104] = '{34, 61, 120, 5.49, 21.02, 2, 1.41, 22.18, 67.62, 1544.25, 6.98, 1.15, 2, 750, 1, 3, 1, 330.15, 5.15, 10.6223};
+        csv_data[105] = '{171, 17, 48, 6.1, 27.86, 1, 1.07, 26.82, 84.63, 832.5, 7.89, 3.54, 4, 840, 2, 5, 1, 71.8, 23.06, 6.5106};
+        csv_data[106] = '{132, 97, 72, 6.71, 41.05, 2, 0.64, 35.24, 33.25, 2695.6, 7.89, 10.82, 3, 1021, 1, 5, 1, 217.98, 7.35, 8.5508};
 
-        // // Scale
-        // $display("-------------------------------------------------------------------------------------------------------------------------------------------------");
-        // $display("| Row | Actual Yield (kaggle dataset) | Python Golden Model  | Golden Model V1 - Without FSM | Golden Model V2 - With FSM | RTL Design With FSM |");
-        // $display("-------------------------------------------------------------------------------------------------------------------------------------------------");
-        // run_row(1, 35.95, 32'h420FCCCD, 5.99, 32'h40BFAE14, 17.79, 32'h418E51EC, 75.62, 32'h42973D71, 77.03, 32'h429A0F5C, 7.27, 32'h40E8A3D7, 0.63, 32'h3F2147AE, 122, 32'h42F40000, WHEAT, 4408, 4162);
-        // print_error();
-        // run_row(2, 19.74, 32'h419DEB85, 7.24, 32'h40E7AE14, 30.18, 32'h41F170A4, 89.91, 32'h42B3D1EC, 61.13, 32'h4274851F, 5.67, 32'h40B570A4, 0.58, 32'h3F147AE1, 112, 32'h42E00000, SOYBEAN, 5390, 4142);
-        // run_row(3, 29.32, 32'h41EA8F5C, 7.16, 32'h40E51EB8, 27.37, 32'h41DAF5C3, 265.43, 32'h4384B70A, 68.87, 32'h4289BD71, 8.23, 32'h4103AE14, 0.80, 32'h3F4CCCCD, 144, 32'h43100000, WHEAT, 2931, 4010);
-        // run_row(4, 17.33, 32'h418AA3D7, 6.03, 32'h40C0F5C3, 33.73, 32'h4206EB85, 212.01, 32'h4354028F, 70.46, 32'h428CEB85, 5.03, 32'h40A0F5C3, 0.44, 32'h3EE147AE, 134, 32'h43060000, MAIZE, 4228, 4162);
-        // run_row(5, 19.37, 32'h419AF5C3, 5.92, 32'h40BD70A4, 33.86, 32'h420770A4, 269.09, 32'h43868B85, 55.73, 32'h425EEB85, 7.93, 32'h40FDC28F, 0.84, 32'h3F570A3D, 105, 32'h42D20000, COTTON, 4980, 4203);
-        // run_row(6, 44.91, 32'h4233A3D7, 5.78, 32'h40B8F5C3, 24.87, 32'h41C6F5C3, 238.95, 32'h436EF333, 83.06, 32'h42A61EB8, 4.92, 32'h409D70A4, 0.82, 32'h3F51EB85, 114, 32'h42E40000, RICE, 4384, 4001);
-        // run_row(7, 36.28, 32'h42111EB8, 7.04, 32'h40E147AE, 21.80, 32'h41AE6666, 123.38, 32'h42F6C28F, 47.91, 32'h423FA3D7, 4.02, 32'h4080A3D7, 0.76, 32'h3F428F5C, 145, 32'h43110000, SOYBEAN, 4501, 4010);
-        // $display("-------------------------------------------------------------------------------------------------------------------------------------------------");
-        // print_error();
+        // Actual yield (last column)
+        actual_yield[0:10]    = '{9.9202, 24.9158, 9.0680, 75.4842, 7.4188, 10.6223, 26.2805, 10.6223, 9.2312, 73.7167, 7.6134};
+        actual_yield[11:21]   = '{9.8159, 9.8159, 23.0707, 24.9158, 8.5507, 24.9158, 9.9202, 7.7424, 7.8491, 9.0680, 10.6223};
+        actual_yield[22:32]   = '{75.4842, 24.9158, 9.4889, 24.5428, 73.7167, 24.5428, 74.5881, 9.9202, 11.2712, 74.5881, 6.5106};
+        actual_yield[33:43]   = '{73.7167, 24.9158, 10.6223, 8.6328, 7.7424, 8.6328, 24.5428, 10.5236, 11.2712, 77.0018, 9.0680};
+        actual_yield[44:54]   = '{9.6498, 10.6223, 9.3436, 9.3436, 26.2805, 24.5428, 24.5428, 9.8159, 10.6223, 9.2312, 10.6223};
+        actual_yield[55:65]   = '{8.5507, 9.8159, 8.4031, 75.4842, 26.2805, 9.3436, 24.5428, 9.9202, 24.5428, 11.2712, 6.1561};
+        actual_yield[66:76]   = '{77.0018, 9.6498, 8.5507, 73.7167, 26.2805, 73.7167, 8.5507, 76.1159, 6.1561, 6.1561, 8.5507};
+        actual_yield[77:87]   = '{7.7424, 10.6223, 6.1561, 24.9158, 11.2712, 11.2712, 8.5507, 9.3436, 7.4189, 10.6223, 7.6135};
+        actual_yield[88:98]   = '{8.4031, 10.6223, 75.1004, 75.1004, 9.2312, 24.5428, 8.6329, 24.9158, 7.4189, 11.2713, 24.9158};
+        actual_yield[99:106]  = '{76.1160, 72.4, 75.1004, 75.1004, 23.0707, 10.6223, 6.5106, 8.5508};
 
-        // No scale
-        $display("-------------------------------------------------------------------------------------------------------------------------------------------------");
-        $display("| Row | Actual Yield (kaggle dataset) | Python Golden Model  | Golden Model V3 - With FSM | RTL Design With FSM |");
-        $display("-------------------------------------------------------------------------------------------------------------------------------------------------");
-        run_row(1, 35.95, 32'h420FCCCD, 5.99, 32'h40BFAE14, 17.79, 32'h418E51EC, 75.62, 32'h42973D71, 77.03, 32'h429A0F5C, 7.27, 32'h40E8A3D7, 0.63, 32'h3F2147AE, 122, 32'h42F40000,1, WHEAT, 4408.07, 4718.38);
-        run_row(2, 19.74, 32'h419DEB85, 7.24, 32'h40E7AE14, 30.18, 32'h41F170A4, 89.91, 32'h42B3D1EC, 61.13, 32'h4274851F, 5.67, 32'h40B570A4, 0.58, 32'h3F147AE1, 112, 32'h42E00000,2, SOYBEAN, 5389.98, 4376.08);
-        run_row(3, 29.32, 32'h41EA8F5C, 7.16, 32'h40E51EB8, 27.37, 32'h41DAF5C3, 265.43, 32'h4384B70A, 68.87, 32'h4289BD71, 8.23, 32'h4103AE14, 0.80, 32'h3F4CCCCD, 144, 32'h43100000,1, WHEAT, 2931.16, 4074.15);
-        run_row(4, 17.33, 32'h418AA3D7, 6.03, 32'h40C0F5C3, 33.73, 32'h4206EB85, 212.01, 32'h4354028F, 70.46, 32'h428CEB85, 5.03, 32'h40A0F5C3, 0.44, 32'h3EE147AE, 134, 32'h43060000,3, MAIZE, 4227.80, 3824.74);
-        run_row(5, 19.37, 32'h419AF5C3, 5.92, 32'h40BD70A4, 33.86, 32'h420770A4, 269.09, 32'h43868B85, 55.73, 32'h425EEB85, 7.93, 32'h40FDC28F, 0.84, 32'h3F570A3D, 105, 32'h42D20000,4, COTTON, 4979.96, 4012.16);
-        run_row(6, 44.91, 32'h4233A3D7, 5.78, 32'h40B8F5C3, 24.87, 32'h41C6F5C3, 238.95, 32'h436EF333, 83.06, 32'h42A61EB8, 4.92, 32'h409D70A4, 0.82, 32'h3F51EB85, 114, 32'h42E40000,5, RICE, 4383.55, 4168.09);
-        run_row(7, 36.28, 32'h42111EB8, 7.04, 32'h40E147AE, 21.80, 32'h41AE6666, 123.38, 32'h42F6C28F, 47.91, 32'h423FA3D7, 4.02, 32'h4080A3D7, 0.76, 32'h3F428F5C, 145, 32'h43110000,2, SOYBEAN, 4501.20, 4004.49);
-        $display("-------------------------------------------------------------------------------------------------------------------------------------------------");
+        // Reset pulse
+        rst = 1;
+        #20;
+        rst = 0;
+      
 
+        // Initialize counters and tolerance
+        correct_count = 0;
+        error_count   = 0;
+        tol           = 0.15; // 5% tolerance
+        
+        // Loop through each row
+        for (int i = 0; i < 106; i++) begin
+            // Drive inputs
+            N              = $realtobits(csv_data[i][0]);
+            P              = $realtobits(csv_data[i][1]);
+            K              = $realtobits(csv_data[i][2]);
+            Soil_pH        = $realtobits(csv_data[i][3]);
+            Soil_Moisture  = $realtobits(csv_data[i][4]);
+            Crop_Type      = $realtobits(csv_data[i][15]);
+            Fertilizer_Used= $realtobits(csv_data[i][17]);
+            Altitude       = $realtobits(csv_data[i][13]);
+            Region         = $realtobits(csv_data[i][12]);
+            Humidity       = $realtobits(csv_data[i][8]);
+            Irrigation_Type= $realtobits(csv_data[i][16]);
+            Season         = $realtobits(csv_data[i][14]);
+            Pesticide_Used = $realtobits(csv_data[i][18]);
+            Soil_Type      = $realtobits(csv_data[i][5]);
+            Organic_Carbon = $realtobits(csv_data[i][6]);
+            Temperature    = $realtobits(csv_data[i][7]);
+            Rainfall       = $realtobits(csv_data[i][9]);
+            Sunlight_Hours = $realtobits(csv_data[i][10]);
+            Wind_Speed     = $realtobits(csv_data[i][11]);
 
+            // Wait for ready
+            @(posedge clk);
+            wait (ready);
+            @(posedge clk);
+            @(posedge clk);
+            @(posedge clk);
+            @(posedge clk);
 
+            // Convert predicted yield to real
+            predicted = $bitstoreal(Yield_Int);
 
+            // Print results
+            $display("Row %0d: Predicted Yield: %f, Actual Yield: %f", i, predicted, actual_yield[i]);
+
+            // Check within 5% tolerance
+            if ((predicted >= actual_yield[i]*(1.0 - tol)) &&
+                (predicted <= actual_yield[i]*(1.0 + tol))) begin
+                correct_count = correct_count + 1;
+                $display("  -> Correct (within 5%%)");
+            end else begin
+                error_count = error_count + 1;
+                $display("  -> Error (outside 5%% tolerance)");
+            end
+
+            $display("");
+        end
+            // Print summary
+    $display("Simulation Summary:");
+    $display("  Correct predictions: %0d", correct_count);
+    $display("  Errors:              %0d", error_count);
         $stop;
     end
-
-        // task automatic print_error();
-        // begin
-        //         $display("-------------------------------------------------------------------------------------------");
-        // $display("| Parameter | Golden Model | RTL Design | %% Error                                        ");
-        // $display("-------------------------------------------------------------------------------------------");
-
-        // $display("| sm        | %8.4f      | %8.4f     | %8.2f", 
-        //         golden_model_v2_inst.sm_norm, 
-        //         $bitstoshortreal(dut.sm_norm),
-        //         100.0 * ($bitstoshortreal(dut.sm_norm) - golden_model_v2_inst.sm_norm)/golden_model_v2_inst.sm_norm);
-
-        // $display("| ph        | %8.4f      | %8.4f     | %8.2f", 
-        //         golden_model_v2_inst.ph_norm, 
-        //         $bitstoshortreal(dut.ph_norm),
-        //         100.0 * ($bitstoshortreal(dut.ph_norm) - golden_model_v2_inst.ph_norm)/golden_model_v2_inst.ph_norm);
-
-        // $display("| sun       | %8.4f      | %8.4f     | %8.2f", 
-        //         golden_model_v2_inst.sun_norm, 
-        //         $bitstoshortreal(dut.sun_norm),
-        //         100.0 * ($bitstoshortreal(dut.sun_norm) - golden_model_v2_inst.sun_norm)/golden_model_v2_inst.sun_norm);
-
-        // $display("| ndvi      | %8.4f      | %8.4f     | %8.2f", 
-        //         golden_model_v2_inst.ndvi_norm, 
-        //         $bitstoshortreal(dut.ndvi_norm),
-        //         100.0 * ($bitstoshortreal(dut.ndvi_norm) - golden_model_v2_inst.ndvi_norm)/golden_model_v2_inst.ndvi_norm);
-
-        // $display("| gd        | %8.4f      | %8.4f     | %8.2f", 
-        //         golden_model_v2_inst.gd_norm, 
-        //         $bitstoshortreal(dut.gd_norm),
-        //         100.0 * ($bitstoshortreal(dut.gd_norm) - golden_model_v2_inst.gd_norm)/golden_model_v2_inst.gd_norm);
-
-        // $display("-------------------------------------------------------------------------------------------");
-        // end
-        // endtask
-    task automatic run_row(
-        input int row,
-        input real sm_real, input [31:0] sm_ieee,
-        input real ph_real, input [31:0] ph_ieee,
-        input real tmp_real, input [31:0] tmp_ieee,
-        input real rf_real, input [31:0] rf_ieee,
-        input real hum_real, input [31:0] hum_ieee,
-        input real sun_real, input [31:0] sun_ieee,
-        input real ndvi_real, input [31:0] ndvi_ieee,
-        input real gd_real, input [31:0] gd_ieee,
-        input int crop_num,
-        input crop_type_e ct,
-        input real actual_yield,
-        input real golden_model_yield
-    );
-        begin
-            rst = 1; #10;
-            rst = 0; #10;
-
-            // DUT gets IEEE-754 32-bit
-            soil_moisture_f  = sm_ieee;
-            soil_ph_f        = ph_ieee;
-            temperature_f    = tmp_ieee;
-            rainfall_f       = rf_ieee;
-            humidity_f       = hum_ieee;
-            sunlight_hours_f = sun_ieee;
-            NDVI_index_f     = ndvi_ieee;
-            growing_days_f   = gd_ieee;
-            crop_type        = ct;
-
-            // Golden models get real numbers
-            soil_moisture  = sm_real;
-            soil_ph        = ph_real;
-            temperature    = tmp_real;
-            rainfall       = rf_real;
-            humidity       = hum_real;
-            sunlight_hours = sun_real;
-            NDVI_index     = ndvi_real;
-            growing_days   = gd_real;
-            crop_number    = crop_num;
-            // Wait until DUT yield_int is valid
-            wait(yield_int != 0);
-            repeat(40) @(posedge clk);
-            check_floating_compare(hum_real,sm_real,ph_real,gd_real,tmp_real,sun_real,ndvi_real,ct);
-            $display("| %3d | %28d | %20d | %25d | %20d |",
-         row, actual_yield, golden_model_yield, golden_yield_int_v3, yield_int);
-        end
-    endtask
-
-    task automatic check_floating_compare(
-    input real humidity_r,
-    input real soil_moisture_r,
-    input real soil_ph_r,
-    input real growing_days_r,
-    input real temperature_r,
-    input real sunlight_r,
-    input real NDVI_r,
-    input real crop_r
-);
-    // Local "golden" results
-    logic cmp_hum_golden, cmp_sm_golden, cmp_ph_golden;
-    logic cmp_gd_127_golden, cmp_gd_125_golden;
-    logic cmp_temp_23_golden, cmp_temp_26_golden;
-    logic cmp_ph_715_golden, cmp_sm_21_golden;
-    logic cmp_ndvi_golden, cmp_sun_golden, cmp_crop_golden;
-
-    // Thresholds (same as SIS module)
-    real TH_76_42  = 76.42;
-    real TH_35_31  = 35.31;
-    real TH_6_13   = 6.13;
-    real TH_127_97 = 127.97;
-    real TH_125_53 = 125.53;
-    real TH_23_92  = 23.92;
-    real TH_26_21  = 26.21;
-    real TH_7_15   = 7.15;
-    real TH_21_52  = 21.52;
-    real TH_0_59   = 0.59;
-    real TH_7_61   = 7.61;
-    real TH_2_76   = 2.76;
-
-        // Compute golden results
-        // hum <= 76.42
-        cmp_hum_golden     = (humidity_r <= TH_76_42);
-        // sm <= 35.31
-        cmp_sm_golden      = (soil_moisture_r <= TH_35_31);
-        // ph <= 6.13
-        cmp_ph_golden      = (soil_ph_r <= TH_6_13);
-        // gd <= 127.97
-        cmp_gd_127_golden  = (growing_days_r <= TH_127_97);
-        // gd <= 125.53
-        cmp_gd_125_golden  = (growing_days_r <= TH_125_53);
-        // temp <= 23.92
-        cmp_temp_23_golden = (temperature_r <= TH_23_92);
-        // temp <= 26.21
-        cmp_temp_26_golden = (temperature_r <= TH_26_21);
-        // ph <= 7.15
-        cmp_ph_715_golden  = (soil_ph_r <= TH_7_15);
-        // sm <= 21.52
-        cmp_sm_21_golden   = (soil_moisture_r <= TH_21_52);
-        // NDVI <=0.59
-        cmp_ndvi_golden    = (NDVI_r <= TH_0_59);
-        // sun <=7.61
-        cmp_sun_golden     = (sunlight_r <= TH_7_61);
-        // crop <=2.76
-        cmp_crop_golden    = (crop_r <= TH_2_76);
-
-        // Automatic check against DUT
-        // Check against DUT and print values if there is an error
-        // Check against DUT and print values if there is an error
-
-if (cmp_hum_golden !== dut.cmp_hum)
-    $display("Error: hum_r=%0.2f <= %0.2f, dut=%0b, golden=%0b", humidity_r, TH_76_42, dut.cmp_hum, cmp_hum_golden);
-
-if (cmp_sm_golden !== dut.cmp_sm)
-    $display("Error: soil_moisture_r=%0.2f <= %0.2f, dut=%0b, golden=%0b", soil_moisture_r, TH_35_31, dut.cmp_sm, cmp_sm_golden);
-
-if (cmp_ph_golden !== dut.cmp_ph)
-    $display("Error: soil_ph_r=%0.2f <= %0.2f, dut=%0b, golden=%0b", soil_ph_r, TH_6_13, dut.cmp_ph, cmp_ph_golden);
-
-if (cmp_gd_127_golden !== dut.cmp_gd_127)
-    $display("Error: growing_days_r=%0.2f <= %0.2f, dut=%0b, golden=%0b", growing_days_r, TH_127_97, dut.cmp_gd_127, cmp_gd_127_golden);
-
-if (cmp_gd_125_golden !== dut.cmp_gd_125)
-    $display("Error: growing_days_r=%0.2f <= %0.2f, dut=%0b, golden=%0b", growing_days_r, TH_125_53, dut.cmp_gd_125, cmp_gd_125_golden);
-
-if (cmp_temp_23_golden !== dut.cmp_temp_23)
-    $display("Error: temperature_r=%0.2f <= %0.2f, dut=%0b, golden=%0b", temperature_r, TH_23_92, dut.cmp_temp_23, cmp_temp_23_golden);
-
-if (cmp_temp_26_golden !== dut.cmp_temp_26)
-    $display("Error: temperature_r=%0.2f <= %0.2f, dut=%0b, golden=%0b", temperature_r, TH_26_21, dut.cmp_temp_26, cmp_temp_26_golden);
-
-if (cmp_ph_715_golden !== dut.cmp_ph_715)
-    $display("Error: soil_ph_r=%0.2f <= %0.2f, dut=%0b, golden=%0b", soil_ph_r, TH_7_15, dut.cmp_ph_715, cmp_ph_715_golden);
-
-if (cmp_sm_21_golden !== dut.cmp_sm_21)
-    $display("Error: soil_moisture_r=%0.2f <= %0.2f, dut=%0b, golden=%0b", soil_moisture_r, TH_21_52, dut.cmp_sm_21, cmp_sm_21_golden);
-
-if (cmp_ndvi_golden !== dut.cmp_ndvi)
-    $display("Error: NDVI_r=%0.2f <= %0.2f, dut=%0b, golden=%0b", NDVI_r, TH_0_59, dut.cmp_ndvi, cmp_ndvi_golden);
-
-if (cmp_sun_golden !== dut.cmp_sun)
-    $display("Error: sunlight_hours_r=%0.2f <= %0.2f, dut=%0b, golden=%0b", sunlight_r, TH_7_61, dut.cmp_sun, cmp_sun_golden);
-
-
-    $display("----------------------------------------------------------------------------------");
-
-endtask
 
 endmodule
