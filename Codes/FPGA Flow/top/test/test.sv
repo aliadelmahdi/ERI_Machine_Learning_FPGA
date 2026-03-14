@@ -1,10 +1,10 @@
 
-package sis_test_pkg;
+package cyp_test_pkg;
 
     import  uvm_pkg::*;
     import  shared_pkg::*;
-    import  sis_env_pkg::*;
+    import  cyp_env_pkg::*;
     
-    `include "sis_test_base.svh"
+    `include "cyp_test_base.svh"
 
-endpackage : sis_test_pkg
+endpackage : cyp_test_pkg

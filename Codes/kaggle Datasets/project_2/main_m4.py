@@ -62,7 +62,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 # ------------------------------
 # 6. Train Decision Tree
 # ------------------------------
-tree_model = DecisionTreeRegressor(random_state=42, max_depth=15, max_features=None)
+tree_model = DecisionTreeRegressor(random_state=42, max_depth=9, max_features=None)
 tree_model.fit(X_train, y_train)
 
 # ------------------------------

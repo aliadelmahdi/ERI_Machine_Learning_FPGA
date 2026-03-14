@@ -1,7 +1,7 @@
 package shared_pkg;
 
     // Include macros inside the package
-    `include "sis_defines.svh"
+    `include "cyp_defines.svh"
     `include "uvm_macros.svh"
    
     // typedef enum int {

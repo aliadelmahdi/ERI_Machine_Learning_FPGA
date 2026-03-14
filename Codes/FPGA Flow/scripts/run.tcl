@@ -4,7 +4,7 @@ vsim -sv_seed random -voptargs=+acc work.tb_top -cover -classdebug -uvmcontrol=a
 
 #*******************************************#
 # Code Coverage
-coverage save top.ucdb -onexit -du work.SIS
+coverage save top.ucdb -onexit -du work.crop_yield_predictor
 #*******************************************#
 vcd file waves/waves.vcd
 vcd add -r /* 
@@ -13,14 +13,14 @@ run -all
 # # Functional Coverage Report
 # coverage report -detail -cvg -directive \
 #     -output "reports/Functional Coverage Report.txt" \
-#     /sys_env_pkg/sys_coverage/*
+#     /cyp_env_pkg/cyp_coverage/*
 
 # coverage report -detail -cvg -directive \
 #     -html -output "reports/Functional Coverage Report" \
-#     /sys_env_pkg/sys_coverage/*
+#     /cyp_env_pkg/cyp_coverage/*
 
 # #*******************************************#
-# quit -sim
+quit -sim
 # Save Coverage Report
-# vcover report top.ucdb -details -annotate -all -output "reports/Coverage Report - Code, Assertions, and Directives.txt"
-# vcover report top.ucdb -details -annotate -html -output "reports/Coverage Report - Code, Assertions, and Directives"
+vcover report top.ucdb -details -annotate -all -output "reports/Coverage Report - Code, Assertions, and Directives.txt"
+vcover report top.ucdb -details -annotate -html -output "reports/Coverage Report - Code, Assertions, and Directives"

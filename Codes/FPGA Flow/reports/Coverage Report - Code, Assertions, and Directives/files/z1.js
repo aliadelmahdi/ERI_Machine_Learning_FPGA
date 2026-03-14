@@ -1,0 +1,2 @@
+var g_data = {"2":{"st":"inst","pa":0,"n":"/\\tb_top#u_dut ","l":"Verilog","sn":2,"ln":22,"du":{"n":"work.crop_yield_predictor","s":1,"b":1},"bc":[{"n":"\\tb_top#u_dut ","s":2,"z":1}],"loc":{"cp":81.63,"data":{"s":[508,505,1],"b":[994,991,1],"fc":[2,1,1],"fe":[2,2,1],"t":[2694,1591,1]}}},"1":{"st":"du","pa":0,"n":"work.crop_yield_predictor","l":"Verilog","sn":1,"ln":1,"one_inst":2,"loc":{"cp":81.63,"data":{"s":[508,505,1],"b":[994,991,1],"fc":[2,1,1],"fe":[2,2,1],"t":[2694,1591,1]}}}};
+processSummaryData(g_data);
