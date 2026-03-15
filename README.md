@@ -231,10 +231,13 @@ Ali Adel
 Hazem Alaa
 [https://github.com/H-Electro](https://github.com/H-Electro)
 
+
 Advisor
 Dr. Heba Draz
+LinkedIn: [linkedin](https://www.linkedin.com/in/hebatullah-draz-b1385a236)
+Email: [hdraz@aucegypt.edu](mailto:hdraz@aucegypt.edu)
 
-Course
+**Course**
 Hardware/Software Co-Design – ECIP Internship Program
 
 Institute
