@@ -60,8 +60,6 @@ The dataset contains environmental variables affecting crop growth and is used t
 | sunlight_hours       | Sunlight          |
 | yield_kg_per_hectare | Target crop yield |
 
-Only numeric features are used to simplify hardware implementation.
-
 ---
 
 # Machine Learning Tools and Libraries
