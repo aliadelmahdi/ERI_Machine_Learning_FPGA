@@ -114,13 +114,6 @@ Decision nodes are mapped to **comparators, control logic, and arithmetic operat
 
 The hardware design is verified using a **SystemVerilog UVM environment**.
 
-Verification includes:
-
-* stimulus generation using dataset samples
-* randomized testing
-* scoreboard comparison with the Python model
-* coverage of decision paths
-
 The goal is to ensure **hardware predictions match software results**.
 
 ---
@@ -232,10 +225,13 @@ Hazem Alaa
 [https://github.com/H-Electro](https://github.com/H-Electro)
 
 
-Advisor
+Advisors
 Dr. Heba Draz
 LinkedIn: [linkedin](https://www.linkedin.com/in/hebatullah-draz-b1385a236)
 Email: [hdraz@aucegypt.edu](mailto:hdraz@aucegypt.edu)
+
+Dr. Ratshih Sayed
+LinkedIn: [linkedin](https://www.linkedin.com/in/ratshih-sayed-4713ab62)
 
 **Course**
 Hardware/Software Co-Design – ECIP Internship Program
