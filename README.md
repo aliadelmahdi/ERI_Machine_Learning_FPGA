@@ -57,7 +57,6 @@ The dataset contains environmental variables affecting crop growth and is used t
 | temperature_C        | Temperature       |
 | rainfall_mm          | Rainfall          |
 | humidity_%           | Humidity          |
-| sunlight_hours       | Sunlight          |
 | yield_kg_per_hectare | Target crop yield |
 
 ---
@@ -70,23 +69,6 @@ The ML pipeline is implemented in Python.
 
 * pandas – data preprocessing
 * numpy – numerical operations
-* pickle – model storage
-* os – file handling
-* struct – binary data processing
-
-**scikit-learn packages**
-
-* `sklearn.model_selection`
-
-  * train_test_split
-
-* `sklearn.tree`
-
-  * DecisionTreeRegressor
-  * export_text
-  * _tree
-
-These tools are used for **data analysis, model training, and rule extraction**.
 
 ---
 
@@ -225,7 +207,8 @@ Hazem Alaa
 [https://github.com/H-Electro](https://github.com/H-Electro)
 
 
-Advisors
+## Advisors
+
 Dr. Heba Draz
 LinkedIn: [linkedin](https://www.linkedin.com/in/hebatullah-draz-b1385a236)
 Email: [hdraz@aucegypt.edu](mailto:hdraz@aucegypt.edu)
