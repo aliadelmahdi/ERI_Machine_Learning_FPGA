@@ -1,0 +1,190 @@
+|--- Fertilizer_Used <= 192.35
+|   |--- Rainfall <= 1173.45
+|   |   |--- Fertilizer_Used <= 130.15
+|   |   |   |--- Soil_Moisture <= 39.90
+|   |   |   |   |--- Temperature <= 13.01
+|   |   |   |   |   |--- Humidity <= 56.44
+|   |   |   |   |   |   |--- value: [9.54]
+|   |   |   |   |   |--- Humidity >  56.44
+|   |   |   |   |   |   |--- value: [7.97]
+|   |   |   |   |--- Temperature >  13.01
+|   |   |   |   |   |--- Pesticide_Used <= 13.21
+|   |   |   |   |   |   |--- value: [6.95]
+|   |   |   |   |   |--- Pesticide_Used >  13.21
+|   |   |   |   |   |   |--- value: [7.65]
+|   |   |   |--- Soil_Moisture >  39.90
+|   |   |   |   |--- Humidity <= 84.60
+|   |   |   |   |   |--- Rainfall <= 605.09
+|   |   |   |   |   |   |--- value: [7.65]
+|   |   |   |   |   |--- Rainfall >  605.09
+|   |   |   |   |   |   |--- value: [8.62]
+|   |   |   |   |--- Humidity >  84.60
+|   |   |   |   |   |--- Rainfall <= 731.60
+|   |   |   |   |   |   |--- value: [9.13]
+|   |   |   |   |   |--- Rainfall >  731.60
+|   |   |   |   |   |   |--- value: [10.33]
+|   |   |--- Fertilizer_Used >  130.15
+|   |   |   |--- K <= 141.00
+|   |   |   |   |--- Soil_Moisture <= 38.56
+|   |   |   |   |   |--- Sunlight_Hours <= 5.09
+|   |   |   |   |   |   |--- value: [9.01]
+|   |   |   |   |   |--- Sunlight_Hours >  5.09
+|   |   |   |   |   |   |--- value: [8.11]
+|   |   |   |   |--- Soil_Moisture >  38.56
+|   |   |   |   |   |--- Temperature <= 22.11
+|   |   |   |   |   |   |--- value: [9.61]
+|   |   |   |   |   |--- Temperature >  22.11
+|   |   |   |   |   |   |--- value: [8.74]
+|   |   |   |--- K >  141.00
+|   |   |   |   |--- Wind_Speed <= 5.91
+|   |   |   |   |   |--- Pesticide_Used <= 4.95
+|   |   |   |   |   |   |--- value: [11.57]
+|   |   |   |   |   |--- Pesticide_Used >  4.95
+|   |   |   |   |   |   |--- value: [10.58]
+|   |   |   |   |--- Wind_Speed >  5.91
+|   |   |   |   |   |--- Temperature <= 23.31
+|   |   |   |   |   |   |--- value: [10.29]
+|   |   |   |   |   |--- Temperature >  23.31
+|   |   |   |   |   |   |--- value: [8.98]
+|   |--- Rainfall >  1173.45
+|   |   |--- Rainfall <= 2229.69
+|   |   |   |--- N <= 138.50
+|   |   |   |   |--- K <= 101.50
+|   |   |   |   |   |--- Soil_Moisture <= 40.15
+|   |   |   |   |   |   |--- value: [8.63]
+|   |   |   |   |   |--- Soil_Moisture >  40.15
+|   |   |   |   |   |   |--- value: [9.43]
+|   |   |   |   |--- K >  101.50
+|   |   |   |   |   |--- Fertilizer_Used <= 158.36
+|   |   |   |   |   |   |--- value: [9.45]
+|   |   |   |   |   |--- Fertilizer_Used >  158.36
+|   |   |   |   |   |   |--- value: [10.45]
+|   |   |   |--- N >  138.50
+|   |   |   |   |--- Humidity <= 36.51
+|   |   |   |   |   |--- Region <= 2.00
+|   |   |   |   |   |   |--- value: [7.51]
+|   |   |   |   |   |--- Region >  2.00
+|   |   |   |   |   |   |--- value: [8.44]
+|   |   |   |   |--- Humidity >  36.51
+|   |   |   |   |   |--- Pesticide_Used <= 16.78
+|   |   |   |   |   |   |--- value: [10.37]
+|   |   |   |   |   |--- Pesticide_Used >  16.78
+|   |   |   |   |   |   |--- value: [9.48]
+|   |   |--- Rainfall >  2229.69
+|   |   |   |--- Fertilizer_Used <= 122.66
+|   |   |   |   |--- Soil_Moisture <= 24.62
+|   |   |   |   |   |--- Soil_pH <= 5.93
+|   |   |   |   |   |   |--- value: [8.27]
+|   |   |   |   |   |--- Soil_pH >  5.93
+|   |   |   |   |   |   |--- value: [9.32]
+|   |   |   |   |--- Soil_Moisture >  24.62
+|   |   |   |   |   |--- Soil_Moisture <= 62.17
+|   |   |   |   |   |   |--- value: [9.86]
+|   |   |   |   |   |--- Soil_Moisture >  62.17
+|   |   |   |   |   |   |--- value: [12.45]
+|   |   |   |--- Fertilizer_Used >  122.66
+|   |   |   |   |--- Soil_pH <= 7.89
+|   |   |   |   |   |--- Wind_Speed <= 6.30
+|   |   |   |   |   |   |--- value: [11.54]
+|   |   |   |   |   |--- Wind_Speed >  6.30
+|   |   |   |   |   |   |--- value: [10.56]
+|   |   |   |   |--- Soil_pH >  7.89
+|   |   |   |   |   |--- Humidity <= 63.22
+|   |   |   |   |   |   |--- value: [6.81]
+|   |   |   |   |   |--- Humidity >  63.22
+|   |   |   |   |   |   |--- value: [9.15]
+|--- Fertilizer_Used >  192.35
+|   |--- Rainfall <= 1543.99
+|   |   |--- Soil_Moisture <= 40.90
+|   |   |   |--- Fertilizer_Used <= 270.36
+|   |   |   |   |--- Soil_Moisture <= 22.70
+|   |   |   |   |   |--- Humidity <= 86.12
+|   |   |   |   |   |   |--- value: [8.22]
+|   |   |   |   |   |--- Humidity >  86.12
+|   |   |   |   |   |   |--- value: [10.03]
+|   |   |   |   |--- Soil_Moisture >  22.70
+|   |   |   |   |   |--- Rainfall <= 808.17
+|   |   |   |   |   |   |--- value: [8.92]
+|   |   |   |   |   |--- Rainfall >  808.17
+|   |   |   |   |   |   |--- value: [9.87]
+|   |   |   |--- Fertilizer_Used >  270.36
+|   |   |   |   |--- Temperature <= 20.81
+|   |   |   |   |   |--- Altitude <= 1381.50
+|   |   |   |   |   |   |--- value: [9.60]
+|   |   |   |   |   |--- Altitude >  1381.50
+|   |   |   |   |   |   |--- value: [8.56]
+|   |   |   |   |--- Temperature >  20.81
+|   |   |   |   |   |--- Soil_pH <= 5.10
+|   |   |   |   |   |   |--- value: [8.02]
+|   |   |   |   |   |--- Soil_pH >  5.10
+|   |   |   |   |   |   |--- value: [10.54]
+|   |   |--- Soil_Moisture >  40.90
+|   |   |   |--- Fertilizer_Used <= 310.64
+|   |   |   |   |--- Rainfall <= 1086.36
+|   |   |   |   |   |--- Fertilizer_Used <= 265.89
+|   |   |   |   |   |   |--- value: [9.72]
+|   |   |   |   |   |--- Fertilizer_Used >  265.89
+|   |   |   |   |   |   |--- value: [10.58]
+|   |   |   |   |--- Rainfall >  1086.36
+|   |   |   |   |   |--- Pesticide_Used <= 20.84
+|   |   |   |   |   |   |--- value: [11.05]
+|   |   |   |   |   |--- Pesticide_Used >  20.84
+|   |   |   |   |   |   |--- value: [9.45]
+|   |   |   |--- Fertilizer_Used >  310.64
+|   |   |   |   |--- Rainfall <= 900.24
+|   |   |   |   |   |--- N <= 131.00
+|   |   |   |   |   |   |--- value: [10.44]
+|   |   |   |   |   |--- N >  131.00
+|   |   |   |   |   |   |--- value: [12.63]
+|   |   |   |   |--- Rainfall >  900.24
+|   |   |   |   |   |--- Wind_Speed <= 9.06
+|   |   |   |   |   |   |--- value: [12.63]
+|   |   |   |   |   |--- Wind_Speed >  9.06
+|   |   |   |   |   |   |--- value: [11.20]
+|   |--- Rainfall >  1543.99
+|   |   |--- Soil_Moisture <= 53.39
+|   |   |   |--- Fertilizer_Used <= 305.41
+|   |   |   |   |--- Rainfall <= 2342.63
+|   |   |   |   |   |--- Wind_Speed <= 14.06
+|   |   |   |   |   |   |--- value: [10.75]
+|   |   |   |   |   |--- Wind_Speed >  14.06
+|   |   |   |   |   |   |--- value: [9.70]
+|   |   |   |   |--- Rainfall >  2342.63
+|   |   |   |   |   |--- Soil_Moisture <= 45.38
+|   |   |   |   |   |   |--- value: [11.25]
+|   |   |   |   |   |--- Soil_Moisture >  45.38
+|   |   |   |   |   |   |--- value: [12.44]
+|   |   |   |--- Fertilizer_Used >  305.41
+|   |   |   |   |--- Rainfall <= 2115.11
+|   |   |   |   |   |--- Pesticide_Used <= 4.27
+|   |   |   |   |   |   |--- value: [12.19]
+|   |   |   |   |   |--- Pesticide_Used >  4.27
+|   |   |   |   |   |   |--- value: [11.23]
+|   |   |   |   |--- Rainfall >  2115.11
+|   |   |   |   |   |--- Soil_Moisture <= 32.45
+|   |   |   |   |   |   |--- value: [11.73]
+|   |   |   |   |   |--- Soil_Moisture >  32.45
+|   |   |   |   |   |   |--- value: [12.65]
+|   |   |--- Soil_Moisture >  53.39
+|   |   |   |--- Fertilizer_Used <= 233.66
+|   |   |   |   |--- Rainfall <= 2227.21
+|   |   |   |   |   |--- Altitude <= 1037.00
+|   |   |   |   |   |   |--- value: [10.19]
+|   |   |   |   |   |--- Altitude >  1037.00
+|   |   |   |   |   |   |--- value: [11.82]
+|   |   |   |   |--- Rainfall >  2227.21
+|   |   |   |   |   |--- Wind_Speed <= 3.78
+|   |   |   |   |   |   |--- value: [13.39]
+|   |   |   |   |   |--- Wind_Speed >  3.78
+|   |   |   |   |   |   |--- value: [11.80]
+|   |   |   |--- Fertilizer_Used >  233.66
+|   |   |   |   |--- N <= 111.50
+|   |   |   |   |   |--- Temperature <= 11.69
+|   |   |   |   |   |   |--- value: [14.54]
+|   |   |   |   |   |--- Temperature >  11.69
+|   |   |   |   |   |   |--- value: [11.92]
+|   |   |   |   |--- N >  111.50
+|   |   |   |   |   |--- Rainfall <= 2288.98
+|   |   |   |   |   |   |--- value: [12.46]
+|   |   |   |   |   |--- Rainfall >  2288.98
+|   |   |   |   |   |   |--- value: [13.80]
