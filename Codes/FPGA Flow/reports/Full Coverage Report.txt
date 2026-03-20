@@ -6319,19 +6319,147 @@ Untoggled Node Count =        559
 Toggle Coverage      =      59.20% (1595 of 2694 bins)
 
 =================================================================================
+=== Instance: /tb_top/u_dut/u_cyp_sva
+=== Design Unit: work.cyp_sva
+=================================================================================
+
+Assertion Coverage:
+    Assertions                       2         2         0   100.00%
+--------------------------------------------------------------------
+Name                 File(Line)                   Failure      Pass 
+                                                  Count        Count
+--------------------------------------------------------------------
+/tb_top/u_dut/u_cyp_sva/a_reset_drives_default_outputs
+                     ./design/cyp_assertions/cyp_sva.svh(49)
+                                                        0          1
+/tb_top/u_dut/u_cyp_sva/a_outputs_known_outside_reset
+                     ./design/cyp_assertions/cyp_sva.svh(56)
+                                                        0          1
+Toggle Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Toggles                       2566      1485      1081    57.87%
+
+================================Toggle Details================================
+
+Toggle Coverage for instance /tb_top/u_dut/u_cyp_sva --
+
+                                              Node      1H->0L      0L->1H  "Coverage"
+                                              ---------------------------------------
+                                           K[0-44]           0           0        0.00 
+                                          K[45-54]           1           1      100.00 
+                                          K[55-61]           0           0        0.00 
+                                             K[62]           0           1       50.00 
+                                             K[63]           0           0        0.00 
+                                           N[0-44]           0           0        0.00 
+                                          N[45-54]           1           1      100.00 
+                                          N[55-61]           0           0        0.00 
+                                             N[62]           0           1       50.00 
+                                             N[63]           0           0        0.00 
+                                           P[0-45]           0           0        0.00 
+                                          P[46-54]           1           1      100.00 
+                                          P[55-61]           0           0        0.00 
+                                             P[62]           0           1       50.00 
+                                             P[63]           0           0        0.00 
+                                    altitude[0-40]           0           0        0.00 
+                                   altitude[41-62]           1           1      100.00 
+                                      altitude[63]           0           0        0.00 
+                                               clk           1           1      100.00 
+                                   crop_type[0-49]           0           0        0.00 
+                                  crop_type[50-62]           1           1      100.00 
+                                     crop_type[63]           0           0        0.00 
+                             fertilizer_used[0-53]           1           1      100.00 
+                               fertilizer_used[54]           0           1       50.00 
+                            fertilizer_used[55-61]           0           0        0.00 
+                               fertilizer_used[62]           0           1       50.00 
+                               fertilizer_used[63]           0           0        0.00 
+                                    humidity[0-54]           1           1      100.00 
+                                   humidity[55-61]           0           0        0.00 
+                                      humidity[62]           0           1       50.00 
+                                      humidity[63]           0           0        0.00 
+                             irrigation_type[0-50]           0           0        0.00 
+                            irrigation_type[51-62]           1           1      100.00 
+                               irrigation_type[63]           0           0        0.00 
+                              organic_carbon[0-53]           1           1      100.00 
+                             organic_carbon[54-61]           0           1       50.00 
+                             organic_carbon[62-63]           0           0        0.00 
+                              pesticide_used[0-62]           1           1      100.00 
+                                pesticide_used[63]           0           0        0.00 
+                                    rainfall[0-55]           1           1      100.00 
+                                   rainfall[56-61]           0           0        0.00 
+                                      rainfall[62]           0           1       50.00 
+                                      rainfall[63]           0           0        0.00 
+                                             ready           1           1      100.00 
+                                      region[0-50]           0           0        0.00 
+                                     region[51-62]           1           1      100.00 
+                                        region[63]           0           0        0.00 
+                                               rst           1           1      100.00 
+                                      season[0-51]           0           0        0.00 
+                                     season[52-62]           1           1      100.00 
+                                        season[63]           0           0        0.00 
+                               soil_moisture[0-54]           1           1      100.00 
+                              soil_moisture[55-61]           0           0        0.00 
+                                 soil_moisture[62]           0           1       50.00 
+                                 soil_moisture[63]           0           0        0.00 
+                                     soil_ph[0-53]           1           1      100.00 
+                                    soil_ph[54-61]           0           0        0.00 
+                                       soil_ph[62]           0           1       50.00 
+                                       soil_ph[63]           0           0        0.00 
+                                   soil_type[0-50]           0           0        0.00 
+                                  soil_type[51-62]           1           1      100.00 
+                                     soil_type[63]           0           0        0.00 
+                              sunlight_hours[0-53]           1           1      100.00 
+                             sunlight_hours[54-61]           0           0        0.00 
+                                sunlight_hours[62]           0           1       50.00 
+                                sunlight_hours[63]           0           0        0.00 
+                                 temperature[0-54]           1           1      100.00 
+                                temperature[55-61]           0           0        0.00 
+                                   temperature[62]           0           1       50.00 
+                                   temperature[63]           0           0        0.00 
+                                  wind_speed[0-62]           1           1      100.00 
+                                    wind_speed[63]           0           0        0.00 
+                                   yield_int[0-54]           1           1      100.00 
+                                  yield_int[55-61]           0           0        0.00 
+                                     yield_int[62]           1           1      100.00 
+                                     yield_int[63]           0           0        0.00 
+
+Total Node Count     =       1283 
+Toggled Node Count   =        733 
+Untoggled Node Count =        550 
+
+Toggle Coverage      =      57.87% (1485 of 2566 bins)
+
+=================================================================================
 === Instance: /tb_top/u_dut
 === Design Unit: work.apb_wrapper
 =================================================================================
 Expression Coverage:
     Enabled Coverage              Bins   Covered    Misses  Coverage
     ----------------              ----      ----    ------  --------
-    Expressions                      2         1         1    50.00%
+    Expressions                      4         2         2    50.00%
 
 ================================Expression Details================================
 
 Expression Coverage for instance /tb_top/u_dut --
 
-  File ./design/cyp_design/cyp_apb_wrapper.v
+  File top/top.sv
+----------------Focused Expression View-----------------
+Line       72 Item    1  (presetn ~& core_rst_n)
+Expression totals: 1 of 2 input terms covered = 50.00%
+
+  Input Term   Covered  Reason for no coverage   Hint
+ -----------  --------  -----------------------  --------------
+     presetn         N  '_0' not hit             Hit '_0'
+  core_rst_n         Y
+
+     Rows:       Hits  FEC Target            Non-masking condition(s)      
+ ---------  ---------  --------------------  -------------------------     
+  Row   1:    ***0***  presetn_0             core_rst_n                    
+  Row   2:          1  presetn_1             core_rst_n                    
+  Row   3:          1  core_rst_n_0          presetn                       
+  Row   4:          1  core_rst_n_1          presetn                       
+
+
 ----------------Focused Expression View-----------------
 Line       117 Item    1  (presetn & core_rst_n)
 Expression totals: 1 of 2 input terms covered = 50.00%
@@ -6573,16 +6701,42 @@ Statement Coverage for instance /tb_top --
     67              1                      73072         assign cyp_if.yield_int       = u_dut.yield_int;
     68              1                      40003         assign cyp_if.ready           = u_dut.core_ready;
     69                                               
-    70                                                   initial begin
-    71              1                          1             uvm_top.set_report_verbosity_level(UVM_MEDIUM);
-    72                                                       // uvm_top.finish_on_completion = `DISABLE_FINISH;
-    73              1                          1             uvm_config_db#(int)::set(null, "", "recording_detail", 0);
-    74              1                          1             uvm_config_db#(uvm_bitstream_t)::set(null, "", "recording_detail", 0);
-    75              1                          1             uvm_config_db#(virtual cyp_apb_master_if)::set(null, "*", "master_if", master_if);
-    76              1                          1             uvm_config_db#(virtual cyp_apb_slave_if)::set(null, "*", "slave_if", slave_if);
-    77              1                          1             uvm_config_db#(virtual cyp_core_if)::set(null, "*", "cyp_if", cyp_if);
-    78              1                          1             run_test("cyp_wrapper_test_base");
-    79              1                    ***0***             $stop;
+    70                                                   bind apb_wrapper cyp_sva u_cyp_sva (
+    71                                                       .clk(pclk),
+    72                                                       .rst(~(presetn & core_rst_n)),
+    73                                                       .N(n),
+    74                                                       .P(p),
+    75                                                       .K(k),
+    76                                                       .soil_ph(soil_ph),
+    77                                                       .soil_moisture(soil_moisture),
+    78                                                       .organic_carbon(organic_carbon),
+    79                                                       .temperature(temperature),
+    80                                                       .rainfall(rainfall),
+    81                                                       .sunlight_hours(sunlight_hours),
+    82                                                       .wind_speed(wind_speed),
+    83                                                       .crop_type(crop_type),
+    84                                                       .fertilizer_used(fertilizer_used),
+    85                                                       .altitude(altitude),
+    86                                                       .region(region),
+    87                                                       .humidity(humidity),
+    88                                                       .irrigation_type(irrigation_type),
+    89                                                       .season(season),
+    90                                                       .pesticide_used(pesticide_used),
+    91                                                       .soil_type(soil_type),
+    92                                                       .yield_int(yield_int),
+    93                                                       .ready(core_ready)
+    94                                                   );
+    95                                               
+    96                                                   initial begin
+    97              1                          1             uvm_top.set_report_verbosity_level(UVM_MEDIUM);
+    98                                                       // uvm_top.finish_on_completion = `DISABLE_FINISH;
+    99              1                          1             uvm_config_db#(int)::set(null, "", "recording_detail", 0);
+    100             1                          1             uvm_config_db#(uvm_bitstream_t)::set(null, "", "recording_detail", 0);
+    101             1                          1             uvm_config_db#(virtual cyp_apb_master_if)::set(null, "*", "master_if", master_if);
+    102             1                          1             uvm_config_db#(virtual cyp_apb_slave_if)::set(null, "*", "slave_if", slave_if);
+    103             1                          1             uvm_config_db#(virtual cyp_core_if)::set(null, "*", "cyp_if", cyp_if);
+    104             1                          1             run_test("cyp_wrapper_test_base");
+    105             1                    ***0***             $stop;
 
 Toggle Coverage:
     Enabled Coverage              Bins      Hits    Misses  Coverage
@@ -10999,5 +11153,17 @@ Covergroup                                             Metric       Goal       B
 
 TOTAL COVERGROUP COVERAGE: 94.01%  COVERGROUP TYPES: 2
 
-Total Coverage By Instance (filtered view): 76.31%
+ASSERTION RESULTS:
+--------------------------------------------------------------------
+Name                 File(Line)                   Failure      Pass 
+                                                  Count        Count
+--------------------------------------------------------------------
+/tb_top/u_dut/u_cyp_sva/a_reset_drives_default_outputs
+                     ./design/cyp_assertions/cyp_sva.svh(49)
+                                                        0          1
+/tb_top/u_dut/u_cyp_sva/a_outputs_known_outside_reset
+                     ./design/cyp_assertions/cyp_sva.svh(56)
+                                                        0          1
+
+Total Coverage By Instance (filtered view): 78.45%
 

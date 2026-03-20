@@ -1,0 +1,2 @@
+var g_data = {"23":{"pr":"/tb_top/u_dut/u_cyp_sva","ty":2,"dui":14,"dun":"work.cyp_sva","asserts":[{"n":["a_reset_drives_default_outputs",154,49],"h":[0,1]},{"n":["a_outputs_known_outside_reset",154,56],"h":[0,1]}],"ad":0}}
+processAssertionsData(g_data);

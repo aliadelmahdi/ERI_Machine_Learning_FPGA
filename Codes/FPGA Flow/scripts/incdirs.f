@@ -27,7 +27,6 @@ cyp_apb_master_if.sv
 cyp_apb_slave_config.svh
 cyp_apb_slave_if.sv
 cyp_assertions/cyp_assertions.sv
-cyp_assertions/cyp_sva.svh
 cyp_config.svh
 cyp_core_if.sv
 cyp_defines.svh

@@ -67,6 +67,32 @@ module tb_top;
     assign cyp_if.yield_int       = u_dut.yield_int;
     assign cyp_if.ready           = u_dut.core_ready;
 
+    bind apb_wrapper cyp_sva u_cyp_sva (
+        .clk(pclk),
+        .rst(~(presetn & core_rst_n)),
+        .N(n),
+        .P(p),
+        .K(k),
+        .soil_ph(soil_ph),
+        .soil_moisture(soil_moisture),
+        .organic_carbon(organic_carbon),
+        .temperature(temperature),
+        .rainfall(rainfall),
+        .sunlight_hours(sunlight_hours),
+        .wind_speed(wind_speed),
+        .crop_type(crop_type),
+        .fertilizer_used(fertilizer_used),
+        .altitude(altitude),
+        .region(region),
+        .humidity(humidity),
+        .irrigation_type(irrigation_type),
+        .season(season),
+        .pesticide_used(pesticide_used),
+        .soil_type(soil_type),
+        .yield_int(yield_int),
+        .ready(core_ready)
+    );
+
     initial begin
         uvm_top.set_report_verbosity_level(UVM_MEDIUM);
         // uvm_top.finish_on_completion = `DISABLE_FINISH;

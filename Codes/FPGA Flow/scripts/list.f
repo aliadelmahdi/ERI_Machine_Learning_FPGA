@@ -33,8 +33,7 @@ interface/cyp_core_if.sv
 # Design file
 design/cyp_design/design.v
 # Assertions
-// design/cyp_Assertions/cyp_assertions.sv
-
+design/cyp_assertions/cyp_assertions.sv
 # Enviroment
 top/test/enviroment/cyp_env_pkg.sv
 
