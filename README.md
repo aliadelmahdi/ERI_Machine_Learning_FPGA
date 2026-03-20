@@ -42,7 +42,7 @@ This enables predictive algorithms to run as hardware accelerators in FPGA/ASIC 
 
 ![System Design](https://github.com/user-attachments/assets/1372e96c-1b36-4d2a-abc4-a540f6f3a8d6)
 
-### Proposed Hardware/Software Co-Design Architecture
+### Proposed Architecture
 
 ![Hardware/Software Co-Design Architecture](https://github.com/user-attachments/assets/c63e34ea-4a04-452a-98eb-e12c37487990)
 
