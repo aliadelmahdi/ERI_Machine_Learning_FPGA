@@ -190,10 +190,11 @@ run.bat
 Project
 |
 +-- Docs
+|   `-- Assets
 |   `-- presentations and documentation
 |
 `-- Codes
-    +-- Machine Learning
+    `-- Machine Learning
     `-- FPGA Flow
 ```
 
@@ -237,7 +238,7 @@ Electronics Research Institute
 [https://verificationacademy.com/topics/uvm-universal-verification-methodology/functional-verification-of-digital-logic](https://verificationacademy.com/topics/uvm-universal-verification-methodology/functional-verification-of-digital-logic)
 
 [3] Random Forest  
-[https://en.wikipedia.org/wiki/Random_forest](https://en.wikipedia.org/wiki/Random_forest)
+[https://www.geeksforgeeks.org/machine-learning/random-forest-algorithm-in-machine-learning](https://www.geeksforgeeks.org/machine-learning/random-forest-algorithm-in-machine-learning)
 
 [4] Decision Tree Example  
 [https://www.displayr.com/what-is-a-decision-tree](https://www.displayr.com/what-is-a-decision-tree)
@@ -264,7 +265,7 @@ Electronics Research Institute
 [https://resources.altium.com/p/whats-hardwaresoftware-co-design-process](https://resources.altium.com/p/whats-hardwaresoftware-co-design-process)
 
 [12] Machine Learning  
-[https://en.wikipedia.org/wiki/Machine_learning](https://en.wikipedia.org/wiki/Machine_learning)
+[https://en.wikipedia.org/wiki/Machine_learning](https://www.ibm.com/think/topics/machine-learning)
 
 [13] FPU Float to Int Implementation  
 [https://github.com/dawsonjon/fpu/tree/master/float_to_int](https://github.com/dawsonjon/fpu/tree/master/float_to_int)
@@ -275,7 +276,7 @@ Electronics Research Institute
 [15] Decision Tree + LUT for FPGA  
 [https://github.com/Arif-miad/crop-yield-prediction-app/blob/main/requirements.txt](https://github.com/Arif-miad/crop-yield-prediction-app/blob/main/requirements.txt)
 
-[16] Smart Crop Recommendation Dataset Code  
+[16] Smart Crop Dataset Code  
 [https://www.kaggle.com/datasets/miadul/smart-crop-recommendation-dataset/code](https://www.kaggle.com/datasets/miadul/smart-crop-recommendation-dataset/code)
 
 ---
