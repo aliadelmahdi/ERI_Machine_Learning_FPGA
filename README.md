@@ -42,6 +42,21 @@ This enables predictive algorithms to run as hardware accelerators in FPGA/ASIC 
 
 ![System Design](https://github.com/user-attachments/assets/1372e96c-1b36-4d2a-abc4-a540f6f3a8d6)
 
+# AMBA APB4 Integration
+
+The APB4 design used in this project is based on this repository:
+
+[https://github.com/MohamedHussein27/AMPA_APB4_Protocol](https://github.com/MohamedHussein27/AMPA_APB4_Protocol)
+
+In this repo, that APB4 design is integrated with the existing crop yield predictor so the predictor can be accessed through an APB4-based interface.
+
+APB4 allows:
+
+* writing input feature values
+* triggering prediction computation
+* storing prediction results
+* reading results from registers or memory
+
 ### Proposed Architecture
 
 ![Hardware/Software Co-Design Architecture](https://github.com/user-attachments/assets/c63e34ea-4a04-452a-98eb-e12c37487990)
@@ -107,23 +122,6 @@ Decision nodes are mapped to comparators, control logic, and arithmetic operatio
 ![UVM Verification Architecture](https://github.com/user-attachments/assets/c0b88bec-68ad-4c72-9654-dfee19f32078)
 
 The hardware design is verified using a SystemVerilog UVM environment. The current setup uses 1 active agent and 2 passive agents to check that hardware predictions stay aligned with the software reference.
-
----
-
-# AMBA APB4 Integration
-
-The APB4 design used in this project is based on this repository:
-
-[https://github.com/MohamedHussein27/AMPA_APB4_Protocol](https://github.com/MohamedHussein27/AMPA_APB4_Protocol)
-
-In this repo, that APB4 design is integrated with the existing crop yield predictor so the predictor can be accessed through an APB4-based interface.
-
-APB4 allows:
-
-* writing input feature values
-* triggering prediction computation
-* storing prediction results
-* reading results from registers or memory
 
 ---
 
