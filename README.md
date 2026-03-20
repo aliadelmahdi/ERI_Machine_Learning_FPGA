@@ -62,7 +62,7 @@ APB4 allows:
 ### Proposed Architecture
 
 <p align="center">
-  <img src="Docs/Assets/arch.png" alt="Hardware/Software Co-Design Architecture" width="244">
+  <img src="Docs/Assets/arch.png" alt="Hardware/Software Co-Design Architecture" width="300">
 </p>
 
 ---
